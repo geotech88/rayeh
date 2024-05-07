@@ -1,0 +1,110 @@
+import { Response } from "express";
+import { ExtendedRequest } from "../middlewares/Authentication";
+import { AppDataSource } from "../config/ormconfig";
+import { encrypt, getToken } from "../helpers/helpers";
+import { User } from "../entity/Users.entity";
+import { Not } from "typeorm";
+import axios from "axios";
+
+export class UserController {
+    static async getAllUsers(req: ExtendedRequest, res: Response) {
+        try {
+            const UserRepository = AppDataSource.getRepository(User);
+            const users = await UserRepository.find();
+            return res.status(200).json({data: users});
+        } catch (error: any) {
+            return res.status(500).json({error: error.message});
+        }
+    }
+
+    static async getMyInfo(req: ExtendedRequest, res: Response) {
+        try {
+            const UserRepository = AppDataSource.getRepository(User);
+            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            return res.status(200).json({data: user});
+        } catch (error: any) {
+            return res.status(500).json({error: error.message});
+        }
+    }
+
+    static async getUser(req: ExtendedRequest, res: Response) {
+        try {
+            const UserRepository = AppDataSource.getRepository(User);
+            const user = await UserRepository.find({where: {auth0UserId: req.params.id}});
+            return res.status(200).json({data: user});
+        } catch (error: any) {
+            return res.status(500).json({error: error.message});
+        }
+    }
+
+    //TODO: Still an issue with the auth0 update patch request: To fix
+    static async updateUserInfo(req: ExtendedRequest, res: Response) {
+        try {
+            const UserRepository = AppDataSource.getRepository(User);
+            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            if (!user) {
+                return res.status(404).json({message: "User not found"});
+            }
+            if (req.body?.email) {
+                const checkMail = await UserRepository.findOne({where: {email: req.body?.email, id: Not(user.id)}});
+                if (checkMail) {
+                    return res.status(400).json({message: "Email already in use"});
+                }
+            }
+            user.name = req.body.name;
+            user.email = req.body.email;
+            user.path = req.body.path;
+            await UserRepository.save(user);
+            let token = await getToken();
+            let dataObj = JSON.stringify({ "user_metadata": {"email": user.email, "name": user.name, "picture": user.path}});
+
+            axios.patch(`${process.env.ISSUER_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
+                headers: {
+                    "content-type": "application/json",
+                    authorization: `Bearer ${token}`
+                }
+            })
+            .then((response) => {
+                console.log(response.data);
+                return res.status(200).json({message: "User updated successfully"});
+            })
+            .catch((error: any)=> {
+                console.log(error.data);
+                // console.log('error attributes:', error.data?.attributes)
+                return res.status(500).json({error: error.message});
+            })
+
+        } catch (error: any) {
+            return res.status(500).json({error: error.message});
+        }
+    }
+
+    static async deleteUser(req: ExtendedRequest, res: Response) {
+        try {
+            const UserRepository = AppDataSource.getRepository(User);
+            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            if (!user) {
+                return res.status(404).json({message: "User not found"});
+            }
+            await UserRepository.delete(user.id);
+            let token = await getToken();
+            let options = {
+                method: 'DELETE',
+                url: `${process.env.ISSUER_DOMAIN}/api/v2/users/${user.auth0UserId}`,
+                headers: {
+                    'content-type': 'application/json',
+                    'authorization': `Bearer ${token}`
+                }
+            };
+
+            await axios.request(options).then((response) => {
+                console.log(response.data);
+            }).catch((error: any)=> {
+                return res.status(500).json({error: error.message});
+            })
+            return res.status(200).json({message: "User deleted successfully"});
+        } catch (error: any) {
+            return res.status(500).json({error: error.message});
+        }
+    }
+}
