@@ -2,6 +2,7 @@ import * as jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 require('dotenv').config();
 import { payload } from "../dto/user.dto";
+import { Decimal128 } from "typeorm";
 const axios = require('axios');
 
 const { JWT_SECRET = "" } = process.env;
@@ -16,6 +17,7 @@ export class encrypt {
   static generateToken(payload: payload) {
     return jwt.sign(payload, JWT_SECRET, { expiresIn: "1d" });
   }
+
 }
 
 export const getToken = async () => {
@@ -39,4 +41,13 @@ export const getToken = async () => {
     .catch((error: any) => {
       console.error('Error obtaining access token:', error.response.data);
     });
+}
+
+// export const uploadFile = async (file: any) => {
+
+// }
+
+export const conversionCurrency = async (from: string, to: string, amount: number): Promise<number> => {
+  //TODO: will use an api request to convert the currency
+  return amount;
 }

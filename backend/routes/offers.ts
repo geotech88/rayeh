@@ -3,7 +3,7 @@ import { OffersController } from '../controllers/offers.controller';
 
 const offerRouter = Router();
 
-offerRouter.get('/api/offer/createoffer', OffersController.createOffer);
+offerRouter.post('/api/offer/createoffer', OffersController.createOffer);
 
 offerRouter.get('/api/offer/getalloffers', OffersController.getAllOffers);
 

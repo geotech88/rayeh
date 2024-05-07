@@ -10,8 +10,8 @@ const config = {
     database: process.env.PGDATABASE,
     synchronize: true,
     logging: process.env.NODE_ENV === "dev" ? false : false,
-    entities: ["src/entity/*.entity.ts"],
-    migrations: ["src/migration/*.ts"],
+    entities: ["entity/*.entity.ts"],
+    migrations: ["migrations/*.ts"]
 };
 
 export default { config };
