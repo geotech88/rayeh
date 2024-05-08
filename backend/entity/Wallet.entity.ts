@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Decimal128, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./Users.entity";
 
 @Entity({ name: 'Wallet'})
@@ -10,10 +10,10 @@ export class Wallet {
     @JoinColumn()
     user: User;
 
-    @Column()
+    @Column({type: 'decimal', precision: 10, scale: 2, default: 0.00})
     balance: number;
 
-    @Column({nullable: false})
+    @Column({default: 'USD'})
     currency: string;
 
     @CreateDateColumn()

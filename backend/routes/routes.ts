@@ -7,6 +7,10 @@ import { Role } from '../entity/Roles.entity';
 import { authorized } from '../middlewares/Authorization';
 import { offerRouter } from './offers';
 import { requestRouter } from './request';
+import { invoiceRouter } from './invoices';
+import { WalletController } from '../controllers/wallet.controller';
+import { walletRouter } from './wallet';
+import { walletLogsRouter } from './walletLogs';
 
 const router = Router();
 
@@ -25,6 +29,7 @@ const checkOnDatabase = async (req: ExtendedRequest , res: Response, next: NextF
         user.path = req.user?.picture as string;
         user.role = roleUser;
         await UserRepository.save(user);
+        await WalletController.createWallet(req, res);
     }
     next();
 }
@@ -43,4 +48,4 @@ router.use('/api', checkIsLoggedIn,
         authorized(['user', 'admin']));
 
 
-export { router, usersRouter, requestRouter, offerRouter };
+export { router, usersRouter, requestRouter, offerRouter, invoiceRouter, walletRouter, walletLogsRouter };

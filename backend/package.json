@@ -7,12 +7,12 @@
     "watch": "tsc -w",
     "build": "tsc -p . --outDir dist",
     "start": "node dist/index.js",
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
-    "migration:run": "npm run typeorm migration:run -- -d ./src/config/ormconfig.ts",
-    "migration:generate": "npm run typeorm -- -d ./src/config/ormconfig.ts migration:generate ./src/migrations/migration",
-    "migration:create": "npm run typeorm -- migration:create ./src/migrations/migration",
-    "migration:revert": "npm run typeorm -- -d ./src/config/ormconfig.ts migration:revert"
+    "migration:run": "npm run typeorm migration:run -- -d ./config/ormconfig.ts",
+    "migration:generate": "npm run typeorm -- -d ./config/ormconfig.ts migration:generate ./migrations/migration",
+    "migration:create": "npm run typeorm -- migration:create ./migrations/migration",
+    "migration:revert": "npm run typeorm -- -d ./config/ormconfig.ts migration:revert"
   },
   "author": "",
   "license": "ISC",

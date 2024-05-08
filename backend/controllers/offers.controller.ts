@@ -16,7 +16,7 @@ export class OffersController {
             const offer = new Offer();
             offer.from = from;
             offer.to = to;
-            offer.date = date;
+            offer.date = new Date(date) as Date; //receive string as "yyyy-mm-dd"
             offer.description = description;
             offer.user = user;
             await OfferRepository.save(offer);
@@ -64,7 +64,7 @@ export class OffersController {
             offer.from = from;
             offer.to = to;
             offer.description = description;
-            offer.date = date;
+            offer.date = typeof(date) == "string"? new Date(date): date;
             await OfferRepository.save(offer);
             return res.status(200).json({message:'Offer updated successfully', data: offer});
         } catch {

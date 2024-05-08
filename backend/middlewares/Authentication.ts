@@ -29,7 +29,7 @@ function getKey(header: any, callback: (err: Error | null, signingKey?: string) 
 
 
 export const checkIsLoggedIn = (req: ExtendedRequest, res: Response, next: NextFunction) => {
-    const accessToken = req.oidc.idToken
+    const accessToken = req.oidc?.idToken
     if (!accessToken) {
       return res.status(401).send({ exception: 'Unauthorized', message: 'No authorization token provided' });
     }
