@@ -60,7 +60,7 @@ export class UserController {
             let token = await getToken();
             let dataObj = JSON.stringify({ "user_metadata": {"email": user.email, "name": user.name, "picture": user.path}});
 
-            axios.patch(`${process.env.ISSUER_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
+            axios.patch(`${process.env.AUTH_ISSUER_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
                 headers: {
                     "content-type": "application/json",
                     authorization: `Bearer ${token}`
@@ -91,7 +91,7 @@ export class UserController {
             
             let token = await getToken();
             let dataObj = JSON.stringify({"password": req.body.password, "connection": "Username-Password-Authentication"});
-            axios.patch(`${process.env.ISSUER_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
+            axios.patch(`${process.env.AUTH_ISSUER_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
                 headers: {
                     "content-type": "application/json",
                     authorization: `Bearer ${token}`
@@ -142,7 +142,7 @@ export class UserController {
             let token = await getToken();
             let options = {
                 method: 'DELETE',
-                url: `${process.env.ISSUER_DOMAIN}/api/v2/users/${user.auth0UserId}`,
+                url: `${process.env.AUTH_ISSUER_DOMAIN}/api/v2/users/${user.auth0UserId}`,
                 headers: {
                     'content-type': 'application/json',
                     'authorization': `Bearer ${token}`

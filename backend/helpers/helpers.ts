@@ -21,12 +21,12 @@ export class encrypt {
 }
 
 export const getToken = async () => {
-    const tokenUrl = `${process.env.ISSUER_DOMAIN}/oauth/token`;
+    const tokenUrl = `${process.env.AUTH_ISSUER_DOMAIN}/oauth/token`;
 
     const clientId = process.env.CLIENTID;
     const clientSecret = process.env.CLIENTSECRET;
 
-    const audience = process.env.ISSUER_AUDIENCE;
+    const audience = process.env.AUTH_ISSUER_AUDIENCE;
 
     return axios.post(tokenUrl, {
       grant_type: 'client_credentials',

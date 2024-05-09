@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1715105976557 implements MigrationInterface {
-    name = 'Migration1715105976557'
+export class Migration1715208935434 implements MigrationInterface {
+    name = 'Migration1715208935434'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE "Role" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, CONSTRAINT "PK_9309532197a7397548e341e5536" PRIMARY KEY ("id"))`);
@@ -10,6 +10,7 @@ export class Migration1715105976557 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE "Message" ("id" SERIAL NOT NULL, "message" character varying NOT NULL, "type" character varying NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "senderUserId" integer, "receiverUserId" integer, CONSTRAINT "PK_7dd6398f0d1dcaf73df342fa325" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Offer" ("id" SERIAL NOT NULL, "from" character varying NOT NULL, "to" character varying NOT NULL, "date" TIMESTAMP NOT NULL, "description" character varying NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "userId" integer, CONSTRAINT "PK_0ef6b03361b2e15ea4c60e1e536" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Tracker" ("id" SERIAL NOT NULL, "name" character varying NOT NULL, "status" character varying NOT NULL, "delivered" boolean NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "senderUserId" integer, "receiverUserId" integer, CONSTRAINT "PK_a89e172146a6a8de0caab70c7cc" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "Reviews" ("id" SERIAL NOT NULL, "value" character varying NOT NULL, "rating" integer NOT NULL, "userId" integer, CONSTRAINT "PK_5ae106da7bc18dc3731e48a8a94" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "User" ("id" SERIAL NOT NULL, "auth0UserId" character varying NOT NULL, "name" character varying NOT NULL, "email" character varying NOT NULL, "profession" character varying, "path" character varying NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "roleId" integer, CONSTRAINT "UQ_4a257d2c9837248d70640b3e36e" UNIQUE ("email"), CONSTRAINT "REL_0b8c60cc29663fa5b9fb108edd" UNIQUE ("roleId"), CONSTRAINT "PK_9862f679340fb2388436a5ab3e4" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "WalletLogs" ("id" SERIAL NOT NULL, "balance" integer NOT NULL, "currency" character varying NOT NULL, "amount" integer NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "userId" integer, CONSTRAINT "PK_6c2a8430bbc811fc29a3b953f3b" PRIMARY KEY ("id"))`);
         await queryRunner.query(`CREATE TABLE "Wallet" ("id" SERIAL NOT NULL, "balance" numeric(10,2) NOT NULL DEFAULT '0', "currency" character varying NOT NULL DEFAULT 'USD', "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "userId" integer, CONSTRAINT "REL_2f7aa51d6746fc8fc8ed63ddfb" UNIQUE ("userId"), CONSTRAINT "PK_8828fa4047435abf9287ff0e89e" PRIMARY KEY ("id"))`);
@@ -20,6 +21,7 @@ export class Migration1715105976557 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "Offer" ADD CONSTRAINT "FK_76b35aca75b2d657384efe3d075" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "Tracker" ADD CONSTRAINT "FK_bc0d02ddf217ba62ab6ba60b7fd" FOREIGN KEY ("senderUserId") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "Tracker" ADD CONSTRAINT "FK_55c387ffe721ce1e8865cd3c8f7" FOREIGN KEY ("receiverUserId") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "Reviews" ADD CONSTRAINT "FK_03697b4cf2383ce44b9b0ac3fda" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "User" ADD CONSTRAINT "FK_0b8c60cc29663fa5b9fb108edd7" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "WalletLogs" ADD CONSTRAINT "FK_734d85b47ed77be658668645bb0" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
         await queryRunner.query(`ALTER TABLE "Wallet" ADD CONSTRAINT "FK_2f7aa51d6746fc8fc8ed63ddfbc" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
@@ -29,6 +31,7 @@ export class Migration1715105976557 implements MigrationInterface {
         await queryRunner.query(`ALTER TABLE "Wallet" DROP CONSTRAINT "FK_2f7aa51d6746fc8fc8ed63ddfbc"`);
         await queryRunner.query(`ALTER TABLE "WalletLogs" DROP CONSTRAINT "FK_734d85b47ed77be658668645bb0"`);
         await queryRunner.query(`ALTER TABLE "User" DROP CONSTRAINT "FK_0b8c60cc29663fa5b9fb108edd7"`);
+        await queryRunner.query(`ALTER TABLE "Reviews" DROP CONSTRAINT "FK_03697b4cf2383ce44b9b0ac3fda"`);
         await queryRunner.query(`ALTER TABLE "Tracker" DROP CONSTRAINT "FK_55c387ffe721ce1e8865cd3c8f7"`);
         await queryRunner.query(`ALTER TABLE "Tracker" DROP CONSTRAINT "FK_bc0d02ddf217ba62ab6ba60b7fd"`);
         await queryRunner.query(`ALTER TABLE "Offer" DROP CONSTRAINT "FK_76b35aca75b2d657384efe3d075"`);
@@ -39,6 +42,7 @@ export class Migration1715105976557 implements MigrationInterface {
         await queryRunner.query(`DROP TABLE "Wallet"`);
         await queryRunner.query(`DROP TABLE "WalletLogs"`);
         await queryRunner.query(`DROP TABLE "User"`);
+        await queryRunner.query(`DROP TABLE "Reviews"`);
         await queryRunner.query(`DROP TABLE "Tracker"`);
         await queryRunner.query(`DROP TABLE "Offer"`);
         await queryRunner.query(`DROP TABLE "Message"`);

@@ -3,6 +3,7 @@ import { ExtendedRequest } from "../middlewares/Authentication";
 import { AppDataSource } from "../config/ormconfig";
 import { Offer } from "../entity/Offers.entity";
 import { User } from "../entity/Users.entity";
+import { MoreThanOrEqual } from "typeorm";
 
 export class OffersController {
     static async createOffer(req: ExtendedRequest, res: Response) {
@@ -35,6 +36,26 @@ export class OffersController {
                 return res.status(404).json({message: "No offers were found"});
             }
             return res.status(200).json({message:'Offers received succefully', data: offers});
+        } catch {
+            return res.status(500).json({error: 'Something went wrong with databse'});
+        }
+    }
+
+    static async getOffersBySearch(req: ExtendedRequest, res: Response) {
+        try {
+            const { from, to } = req.body;
+            const fromDate = new Date() as Date;
+            const offers = await AppDataSource.getRepository(Offer).find({
+                where: {
+                  date: MoreThanOrEqual(fromDate),
+                  to: to,
+                  from: from
+                }
+              });
+            if (!offers) {
+                return res.status(404).json({message: "No offers were found"});
+            }
+            return res.status(200).json({message:'Offers retrieved succefully', data: offers});
         } catch {
             return res.status(500).json({error: 'Something went wrong with databse'});
         }
