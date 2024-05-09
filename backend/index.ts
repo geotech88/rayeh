@@ -3,11 +3,12 @@ require('dotenv').config();
 import express from 'express';
 import cors from 'cors';
 import { auth } from 'express-openid-connect';
-import { requestRouter, router, usersRouter, offerRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter } from './routes/routes';
+import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter } from './routes/routes';
 import { config } from './config/auth-config';
 import { AppDataSource } from './config/ormconfig';
 import http from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
+import { MessagesController } from './controllers/messages.controller';
 
 
 AppDataSource.initialize().then(async () => {
@@ -23,16 +24,19 @@ AppDataSource.initialize().then(async () => {
     // app.use(express.urlencoded({ extended: true }));
     app.use(router);
     app.use(usersRouter);
-    app.use(offerRouter);
+    app.use(tripsRouter);
     app.use(requestRouter);
     app.use(invoiceRouter);
     app.use(walletRouter);
     app.use(walletLogsRouter);
     app.use(reviewRouter);
 
+    const messagesController = new MessagesController();
+
     io.on('connection', (socket: Socket) => {
         console.log('User connected:', socket.id);
 
+        messagesController.handleSocketEvents(socket);
         
         socket.on('disconnect', () => {
             console.log('User disconnected:', socket.id);

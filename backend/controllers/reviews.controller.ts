@@ -37,19 +37,6 @@ export class ReviewsController {
          }
     }
 
-    static async getAllUserReviews(req: ExtendedRequest, res: Response) {
-        try {
-            const reviews = await AppDataSource.getRepository(Reviews)
-                                    .find({relations: {user: true}, where: { user: {auth0UserId: req.params?.id}}});
-            if (!reviews) {
-                return res.status(404).json({ message: "Reviews not found" });
-            }
-            return res.status(200).json({ message: "Reviews retrieved successfully", data: reviews });
-        } catch (error: any) {
-            return res.status(500).json({ error: error.message });
-        }
-    }
-
     static async deleteReview(req: ExtendedRequest, res: Response) {
         try {
             const review = await AppDataSource.getRepository(Reviews).findOne({ where: { id: Number(req.params?.id) } });

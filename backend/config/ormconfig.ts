@@ -11,8 +11,8 @@ const config = {
     database: process.env.DB_DATABASE,
     synchronize: true,
     logging: process.env.MODE === "DEV" ? false : false,
-    entities: ["dist/entity/*.entity.ts"],
-    migrations: ["dist/migrations/*.ts"],
+    entities: ["entity/*.entity.ts"],
+    migrations: ["migrations/*.ts"],
     ssl: process.env.MODE !== 'DEV'
     ? {
         rejectUnauthorized: true,
