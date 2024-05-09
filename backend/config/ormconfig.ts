@@ -1,15 +1,6 @@
 require('dotenv').config();
-import { DataSource, DataSourceOptions, In } from "typeorm";
-import { User } from "../entity/Users.entity";
-import { Offer } from "../entity/Offers.entity";
-import { Invoice } from "../entity/Invoices.entity";
-import { Wallet } from "../entity/Wallet.entity";
-import { WalletLogs } from "../entity/WalletLogs.entity";
-import { Reviews } from "../entity/Reviews.entity";
-import { Role } from "../entity/Roles.entity";
-import { Tracker } from "../entity/Tracker.entity";
-import { Message } from "../entity/Messages.entity";
-import { Request } from "../entity/Request.entity";
+import { DataSource, DataSourceOptions } from "typeorm";
+import fs from 'fs';
 
 const config = {
     type: 'postgres',
@@ -19,10 +10,15 @@ const config = {
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
     synchronize: true,
-    logging: process.env.MODE === "dev" ? false : false,
-    entities: ["entity/*.entity.{ts,js}"],
-    // entities: [User, Offer, Invoice, Wallet, WalletLogs, Reviews, Role, Tracker, Message, Request],
-    migrations: ["migrations/*.{ts,js}"],
+    logging: process.env.MODE === "DEV" ? false : false,
+    entities: ["dist/entity/*.entity.ts"],
+    migrations: ["dist/migrations/*.ts"],
+    ssl: process.env.MODE !== 'DEV'
+    ? {
+        rejectUnauthorized: true,
+        ca: fs.readFileSync('certs/ca.crt').toString(),
+      }
+    : false, 
 };
 
 export default { config };

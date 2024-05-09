@@ -1,16 +1,18 @@
 {
     "compilerOptions": {
       "strictPropertyInitialization": false,
-      "target": "es2017",
+      "target": "ES6",
       "module": "commonjs",
-      "outDir": "../dist",
-      // "rootDir": "./src",
+      "outDir": "./dist",
+      "rootDir": "./",
       "strict": true,
+      "moduleResolution": "node",
       "esModuleInterop": true,
       "skipLibCheck": true,
       "forceConsistentCasingInFileNames": true,
+      "resolveJsonModule": true,
       "experimentalDecorators": true,
-      "emitDecoratorMetadata": true,
+      "emitDecoratorMetadata": true
     },
     // "include": ["src/**/*"]
   }
