@@ -21,4 +21,8 @@ export class Request {
 
     @Column({nullable: false})
     cost: string;
+
+    @Column({type: "timestamp", nullable: false})
+    date: Date;
 }
+

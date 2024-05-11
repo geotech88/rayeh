@@ -3,16 +3,18 @@ import { TripsController } from '../controllers/trips.controller';
 
 const tripsRouter = Router();
 
-tripsRouter.post('/api/offer/createoffer', TripsController.createTrips);
+tripsRouter.post('/api/trips/createtrip', TripsController.createTrips);
 
-tripsRouter.get('/api/offer/getallTrips', TripsController.getAllTrips);
+tripsRouter.get('/api/trips/getallTrips', TripsController.getAllTrips);
 
-tripsRouter.get('/api/offer/getoffer/:id', TripsController.getTripsById);
+tripsRouter.get('/api/trips/gettrip/:id', TripsController.getTripsById);
 
-tripsRouter.get('/api/offer/getTripsbysearch', TripsController.getTripsBySearch);
+tripsRouter.get('/api/trips/getTripsbysearch', TripsController.getTripsBySearch);
 
-tripsRouter.post('/api/offer/updateOffer/:id', TripsController.updateTrips);
+tripsRouter.get('/api/trips/getTripsByUserId/:id', TripsController.getTripsByUserId);
 
-tripsRouter.delete('/api/offer/deleteoffer/:id', TripsController.deleteTrips);
+tripsRouter.post('/api/trips/updatetrip/:id', TripsController.updateTrips);
+
+tripsRouter.delete('/api/trips/deletetrip/:id', TripsController.deleteTrips);
 
 export { tripsRouter };

@@ -12,6 +12,7 @@ import { WalletController } from '../controllers/wallet.controller';
 import { walletRouter } from './wallet';
 import { walletLogsRouter } from './walletLogs';
 import { reviewRouter } from './reviews';
+import { trackerRouter } from './tracker';
 
 const router = Router();
 
@@ -49,4 +50,4 @@ router.use('/api', checkIsLoggedIn,
         authorized(['user', 'admin']));
 
 
-export { router, usersRouter, requestRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter };
+export { router, usersRouter, requestRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter };

@@ -9,7 +9,11 @@ usersRouter.get('/api/users/me', UserController.getMyInfo);
 
 usersRouter.get('/api/users/:id', UserController.getUser);
 
-usersRouter.post('/api/users/update', UserController.updateUserInfo);
+usersRouter.patch('/api/users/update/all', UserController.updateUserInfo);
+
+usersRouter.patch('/api/users/update/password', UserController.changePassword)
+
+usersRouter.patch('/api/users/photo', UserController.changePhoto);
 
 usersRouter.delete('/api/users/delete', UserController.deleteUser);
 

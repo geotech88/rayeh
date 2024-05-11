@@ -17,7 +17,7 @@ export class TripsController {
             const trips = new Trips();
             trips.from = from;
             trips.to = to;
-            trips.date = new Date(date) as Date; //receive string as "yyyy-mm-dd"
+            trips.date = typeof(date) == "string"? new Date(date): date; //receive string as "yyyy-mm-dd"
             trips.description = description;
             trips.user = user;
             await TripsRepository.save(trips);
@@ -64,7 +64,20 @@ export class TripsController {
     static async getTripsById(req: ExtendedRequest, res: Response) {
         try {
             const TripsRepository = AppDataSource.getRepository(Trips);
-            const trips = await TripsRepository.findOne({where: {id: Number(req.params.id)}});
+            const trips = await TripsRepository.findOne({relations: {user: true}, where: {id: Number(req.params.id)}});
+            if (!trips) {
+                return res.status(404).json({message: "Trips not found"});
+            }
+            return res.status(200).json({message: 'Trips received succefully', data: trips});
+        } catch {
+            return res.status(500).json({error: 'Something went wrong with databse'});
+        }
+    }
+
+    static async getTripsByUserId(req: ExtendedRequest, res: Response) {
+        try {
+            const TripsRepository = AppDataSource.getRepository(Trips);
+            const trips = await TripsRepository.find({where: {user: {auth0UserId: req.params.id}}});
             if (!trips) {
                 return res.status(404).json({message: "Trips not found"});
             }
@@ -78,7 +91,7 @@ export class TripsController {
         try {
             const { from, to, date, description } = req.body;
             const TripsRepository = AppDataSource.getRepository(Trips);
-            const trips = await TripsRepository.findOne({where: {id: Number(req.params.id)}});
+            let trips = await TripsRepository.findOne({where: {id: Number(req.params.id)}});
             if (!trips) {
                 return res.status(404).json({message: "Trips not found"});
             }
@@ -87,6 +100,7 @@ export class TripsController {
             trips.description = description;
             trips.date = typeof(date) == "string"? new Date(date): date;
             await TripsRepository.save(trips);
+            trips = await TripsRepository.findOne({where: {id: Number(req.params.id)}});
             return res.status(200).json({message:'Trips updated successfully', data: trips});
         } catch {
             return res.status(500).json({error: 'Something went wrong with databse'});

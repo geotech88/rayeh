@@ -13,7 +13,7 @@ export class UserController {
         try {
             const UserRepository = AppDataSource.getRepository(User);
             const users = await UserRepository.find();
-            return res.status(200).json({data: users});
+            return res.status(200).json({message:"All users fetched successfully", data: users});
         } catch (error: any) {
             return res.status(500).json({error: error.message});
         }
@@ -23,7 +23,7 @@ export class UserController {
         try {
             const UserRepository = AppDataSource.getRepository(User);
             const user = await UserRepository.findOne({where: {email: req.user?.email}});
-            return res.status(200).json({data: user});
+            return res.status(200).json({ message:"User fetched successfully", data: user});
         } catch (error: any) {
             return res.status(500).json({error: error.message});
         }
@@ -58,7 +58,7 @@ export class UserController {
             user.path = req.body.path;
             await UserRepository.save(user);
             let token = await getToken();
-            let dataObj = JSON.stringify({ "user_metadata": {"email": user.email, "name": user.name, "picture": user.path}});
+            let dataObj = {"user_metadata":{"email": user.email, "name": user.name, "picture": user.path}};
 
             axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
                 headers: {
@@ -66,13 +66,10 @@ export class UserController {
                     authorization: `Bearer ${token}`
                 }
             })
-            .then((response) => {
-                console.log(response.data);
-                return res.status(200).json({message: "User updated successfully"});
+            .then(async (response) => {
+                return res.status(200).json({message: "User updated successfully", data: user});
             })
             .catch((error: any)=> {
-                console.log(error.data);
-                // console.log('error attributes:', error.data?.attributes)
                 return res.status(500).json({error: error.message});
             })
 
@@ -98,11 +95,9 @@ export class UserController {
                 }
             })
             .then((response) => {
-                console.log(response.data);
-                return res.status(200).json({message: "Password changed successfully"});
+                return res.status(200).json({message: "Password changed successfully", data: user});
             })
             .catch((error: any)=> {
-                console.log(error.data);
                 return res.status(500).json({error: error.message});
             })
         } catch (error: any) {
