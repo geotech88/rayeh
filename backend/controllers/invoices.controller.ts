@@ -35,7 +35,7 @@ export class InvoicesController {
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
-            const invoices = await AppDataSource.getRepository(Invoice).find({where: {user: user}});
+            const invoices = await AppDataSource.getRepository(Invoice).find({relations: {user: true },where: {user: {id: user.id}}});
             if (!invoices.length) {
                 return res.status(404).json({message: "No invoices found"});
             }

@@ -4,6 +4,7 @@ import { AppDataSource } from "../config/ormconfig";
 import { User } from "../entity/Users.entity";
 import { Tracker } from "../entity/Tracker.entity";
 import { Trips } from "../entity/Trips.entity";
+import { TransactionsController } from "./transactions.controller";
 
 export class TrackersController {
     static async createTracker(req: ExtendedRequest, res: Response) {
@@ -27,6 +28,7 @@ export class TrackersController {
             tracker.timing = timing;
             tracker.trip = trip;
             await TrackerRepository.save(tracker);
+            await TransactionsController.createTransaction(req, tracker);
             return res.status(201).json({message:'Tracker updated successfully', data: tracker});
         } catch (error:any){
             return res.status(500).json({error: error.message});

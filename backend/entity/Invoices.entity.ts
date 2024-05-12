@@ -14,7 +14,7 @@ export class Invoice {
     @OneToOne(() => Transaction, transaction => transaction.invoice)
     transaction: Transaction;
     
-    @Column()
+    @Column({type: 'decimal', precision: 10, scale: 2})
     amount: number;
 
     @Column({nullable: false})
