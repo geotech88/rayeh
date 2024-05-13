@@ -73,11 +73,11 @@ export class MessagesController {
     }
 
 
-    handleSocketEvents(socket: Socket) {
+    handleSocketEvents(socket: Socket, listSocket: Map<string, Socket>) {
         socket.on('sendMessage', async (data: messageDto) => {
             try {
                 const newMessage = await this.storeMessage(data);
-                socket.emit('newMessage', newMessage);
+                listSocket.get(data.receiverId)?.emit('newMessage', newMessage);
             } catch (error: any) {
                 socket.emit('error', error.message);
             }
@@ -86,7 +86,7 @@ export class MessagesController {
         socket.on('getMessages', async (data: messageUsersDto) => {
             try {
                 const messages = await this.getAllMessages(data);
-                socket.emit('retrieveMessages', messages);
+                listSocket.get(data.user2Id)?.emit('retrieveMessages', messages);
             } catch (error: any) {
                 socket.emit('error', error.message);
             }

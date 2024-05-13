@@ -52,7 +52,11 @@ AppDataSource.initialize().then(async () => {
     io.on('connection', (socket: Socket) => {
         console.log('User connected:', socket.id);
 
-        messagesController.handleSocketEvents(socket);
+        socket.on('user_identification', (userId: string) => {
+            listSocket.set(userId, socket);
+        });
+
+        messagesController.handleSocketEvents(socket, listSocket);
         
         socket.on('disconnect', () => {
             console.log('User disconnected:', socket.id);
