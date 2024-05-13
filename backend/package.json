@@ -10,8 +10,8 @@
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:run": "npm run typeorm migration:run -- -d ./config/ormconfig.ts",
-    "migration:generate": "npm run typeorm -- -d ./config/ormconfig.ts migration:generate ./migrations/migration",
     "migration:create": "npm run typeorm -- migration:create ./migrations/migration",
+    "migration:generate": "npm run typeorm -- -d ./config/ormconfig.ts migration:generate ./migrations/migration",
     "migration:revert": "npm run typeorm -- -d ./config/ormconfig.ts migration:revert"
   },
   "author": "",
@@ -32,6 +32,7 @@
     "jwks-rsa": "^3.1.0",
     "pg": "^8.11.5",
     "reflect-metadata": "^0.2.2",
+    "socket-io": "^1.0.0",
     "typeorm": "^0.3.20"
   },
   "devDependencies": {
@@ -39,6 +40,7 @@
     "@types/express": "^4.17.21",
     "@types/node": "^20.12.7",
     "@types/pg": "^8.11.5",
+    "@types/socket.io": "^3.0.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",

@@ -5,12 +5,15 @@ import { AppDataSource } from '../config/ormconfig';
 import { User } from '../entity/Users.entity';
 import { Role } from '../entity/Roles.entity';
 import { authorized } from '../middlewares/Authorization';
-import { offerRouter } from './offers';
+import { tripsRouter } from './trips';
 import { requestRouter } from './request';
 import { invoiceRouter } from './invoices';
 import { WalletController } from '../controllers/wallet.controller';
 import { walletRouter } from './wallet';
 import { walletLogsRouter } from './walletLogs';
+import { reviewRouter } from './reviews';
+import { trackerRouter } from './tracker';
+import { transactionRouter } from './transactions';
 
 const router = Router();
 
@@ -48,4 +51,4 @@ router.use('/api', checkIsLoggedIn,
         authorized(['user', 'admin']));
 
 
-export { router, usersRouter, requestRouter, offerRouter, invoiceRouter, walletRouter, walletLogsRouter };
+export { router, usersRouter, requestRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter };

@@ -3,8 +3,8 @@ import { RequestController } from '../controllers/request.controller';
 
 const requestRouter = Router();
 
-requestRouter.get('/api/request/', RequestController.createRequest);
+requestRouter.post('/api/request/', RequestController.createRequest);
 
-requestRouter.delete('/api/request/delete', RequestController.deleteRequest);
+requestRouter.delete('/api/request/delete/:id', RequestController.deleteRequest);
 
 export { requestRouter };

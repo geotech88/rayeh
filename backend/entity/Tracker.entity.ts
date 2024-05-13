@@ -1,5 +1,7 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import 'reflect-metadata';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./Users.entity";
+import { Trips } from './Trips.entity';
 
 @Entity({ name: 'Tracker'})
 export class Tracker {
@@ -16,14 +18,15 @@ export class Tracker {
     name: string;
 
     @Column({nullable: false})
-    status: string;
+    date: Date;
 
-    @Column()
-    delivered: boolean
+    @Column({nullable: false})
+    timing: string
+
+    @OneToOne(() => Trips, trip => trip.tracker)
+    @JoinColumn()
+    trip: Trips;
 
     @CreateDateColumn()
     createdAt: Date;
-
-    @UpdateDateColumn()
-    updatedAt: Date;
 }

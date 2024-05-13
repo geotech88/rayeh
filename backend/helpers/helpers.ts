@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 require('dotenv').config();
 import { payload } from "../dto/user.dto";
 import { Decimal128 } from "typeorm";
+import { Reviews } from "../entity/Reviews.entity";
 const axios = require('axios');
 
 const { JWT_SECRET = "" } = process.env;
@@ -21,12 +22,12 @@ export class encrypt {
 }
 
 export const getToken = async () => {
-    const tokenUrl = `${process.env.ISSUER_DOMAIN}/oauth/token`;
+    const tokenUrl = `${process.env.AUTH0_DOMAIN}/oauth/token`;
 
-    const clientId = process.env.CLIENTID;
-    const clientSecret = process.env.CLIENTSECRET;
+    const clientId = process.env.AUTH0_CLIENT_ID;
+    const clientSecret = process.env.AUTH0_CLIENT_SECRET;
 
-    const audience = process.env.ISSUER_AUDIENCE;
+    const audience = process.env.AUTH0_AUDIENCE;
 
     return axios.post(tokenUrl, {
       grant_type: 'client_credentials',
@@ -41,6 +42,11 @@ export const getToken = async () => {
     .catch((error: any) => {
       console.error('Error obtaining access token:', error.response.data);
     });
+}
+
+export const calculateReviewsAverage = (reviews: Reviews[]) => {
+    const sum = reviews.reduce((acc: number, review: Reviews) => acc + review.rating, 0);
+    return sum / reviews.length || 0;
 }
 
 // export const uploadFile = async (file: any) => {

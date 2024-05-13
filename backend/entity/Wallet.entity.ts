@@ -1,5 +1,7 @@
-import { Column, CreateDateColumn, Decimal128, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import 'reflect-metadata';
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./Users.entity";
+
 
 @Entity({ name: 'Wallet'})
 export class Wallet {

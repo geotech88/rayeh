@@ -3,13 +3,23 @@ require('dotenv').config();
 import express from 'express';
 import cors from 'cors';
 import { auth } from 'express-openid-connect';
-import { requestRouter, router, usersRouter, offerRouter, invoiceRouter, walletRouter, walletLogsRouter } from './routes/routes';
+import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter } from './routes/routes';
 import { config } from './config/auth-config';
 import { AppDataSource } from './config/ormconfig';
+import http from 'http';
+import { Server as SocketIOServer, Socket } from 'socket.io';
+import { MessagesController } from './controllers/messages.controller';
 
 
 AppDataSource.initialize().then(async () => {
     const app = express();
+    const server = http.createServer(app);
+    const io = new SocketIOServer(server, {
+        cors: {
+            origin: 'http://localhost:3000',
+            methods: ['GET', 'POST'],
+        }
+    });
     app.use(express.json());
 
     // app.use(cors());
@@ -19,13 +29,37 @@ AppDataSource.initialize().then(async () => {
     // app.use(express.urlencoded({ extended: true }));
     app.use(router);
     app.use(usersRouter);
-    app.use(offerRouter);
+    app.use(tripsRouter);
     app.use(requestRouter);
     app.use(invoiceRouter);
     app.use(walletRouter);
     app.use(walletLogsRouter);
+    app.use(reviewRouter);
+    app.use(trackerRouter);
+    app.use(transactionRouter);
 
-    app.listen(process.env.PORT || 3000, () => {
+    const messagesController = new MessagesController();
+    const listSocket: Map<string, Socket> = new Map<string, Socket>();
+
+    // io.use((socket: Socket, next: any) => {
+    //     const request = socket.request;
+    //     if (request?.oidc) {
+    //         listSocket.set(socket.id, socket);
+    //     }
+    //     next();
+    // });
+
+    io.on('connection', (socket: Socket) => {
+        console.log('User connected:', socket.id);
+
+        messagesController.handleSocketEvents(socket);
+        
+        socket.on('disconnect', () => {
+            console.log('User disconnected:', socket.id);
+        });
+    });
+
+    server.listen(process.env.PORT || 3000, () => {
         console.log(`Server is running on port ${process.env.PORT || 3000}`);
     });
 }).catch((err) => {

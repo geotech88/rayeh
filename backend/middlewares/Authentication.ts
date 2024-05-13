@@ -7,7 +7,7 @@ export interface ExtendedRequest extends Request {
 }
 
 const client = new JwksClient({
-  jwksUri: `${process.env.ISSUER_DOMAIN}/.well-known/jwks.json`
+  jwksUri: `${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
 });
 
 function getKey(header: any, callback: (err: Error | null, signingKey?: string) => void) {
@@ -29,15 +29,15 @@ function getKey(header: any, callback: (err: Error | null, signingKey?: string) 
 
 
 export const checkIsLoggedIn = (req: ExtendedRequest, res: Response, next: NextFunction) => {
-    const accessToken = req.oidc?.idToken
+    const accessToken = req.oidc?.idToken //add authorization bearer here if needed
     if (!accessToken) {
       return res.status(401).send({ exception: 'Unauthorized', message: 'No authorization token provided' });
     }
   
     jwt.verify(accessToken, getKey, {
-    // audience: process.env.ISSUER_AUDIENCE,
-      issuer: `${process.env.ISSUER_DOMAIN}/`,
-      algorithms: [process.env.TOKEN_ALG as any]
+    // audience: process.env.AUTH0_AUDIENCE,
+      issuer: `${process.env.AUTH0_DOMAIN}/`,
+      algorithms: [process.env.TOKEN_SIGNIN_ALG as any]
     }, (err, decoded) => {
       if (err) {
         return res.status(401).send({ exception: err, message: 'Unauthorized', err });

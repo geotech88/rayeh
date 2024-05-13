@@ -1,10 +1,13 @@
+import 'reflect-metadata';
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Role } from "./Roles.entity";
 import { Invoice } from "./Invoices.entity";
 import { Message } from "./Messages.entity";
-import { Offer } from "./Offers.entity";
+import { Trips } from "./Trips.entity";
 import { Tracker } from "./Tracker.entity";
 import { WalletLogs } from "./WalletLogs.entity";
+import { Reviews } from "./Reviews.entity";
+import { Transaction } from './Transaction.entity';
 
 @Entity({ name: 'User'})
 export class User {
@@ -39,11 +42,23 @@ export class User {
     @OneToMany(()=> Tracker, tracker => tracker.receiverUser)
     receiverTrackers: Tracker[];
 
-    @OneToMany(() => Offer, offer => offer.user)
-    offers: Offer[];
+    @OneToMany(() => Trips, trip => trip.user)
+    trips: Trips[];
 
     @OneToMany(() => WalletLogs, walletLogs => walletLogs.user)
     walletLogs: WalletLogs[];
+
+    @OneToMany(() => Reviews, reviews => reviews.user)
+    reviews: Reviews[];
+
+    @OneToOne(() => User, user => user.id)
+    reviewedUser: User;
+
+    @OneToMany(() => Transaction, transaction => transaction.sender)
+    transaction_sender: Transaction[];
+
+    @OneToMany(() => Transaction, transaction => transaction.receiver)
+    transaction_receiver: Transaction[];
 
     @Column({nullable: true})
     profession: string;
