@@ -19,7 +19,7 @@ const router = Router();
 
 const checkOnDatabase = async (req: ExtendedRequest , res: Response, next: NextFunction) => {
     const UserRepository = AppDataSource.getRepository(User);
-    const findUser = await UserRepository.findOne({where: {email: req.user?.email}});
+    const findUser = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
     if (!findUser) {
         const user = new User();
         const RoleRepository = AppDataSource.getRepository(Role);

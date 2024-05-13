@@ -14,7 +14,7 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({nullable: false})
+    @Column({nullable: false, unique: true})
     auth0UserId: string;
 
     @Column({nullable: false})

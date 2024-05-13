@@ -11,6 +11,7 @@ import { Role } from "../entity/Roles.entity";
 export class UserController {
     static async getAllUsers(req: ExtendedRequest, res: Response) {
         try {
+            console.log('the user information in req:', req.user, ', the auth0UserId:', req.user?.sub);
             const UserRepository = AppDataSource.getRepository(User);
             const users = await UserRepository.find();
             return res.status(200).json({message:"All users fetched successfully", data: users});
@@ -43,7 +44,7 @@ export class UserController {
     static async updateUserInfo(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -58,7 +59,7 @@ export class UserController {
             user.path = req.body.path;
             await UserRepository.save(user);
             let token = await getToken();
-            let dataObj = {"user_metadata":{"email": user.email, "name": user.name, "picture": user.path}};
+            let dataObj = JSON.stringify({"user_metadata":{"email": user.email, "name": user.name, "picture": user.path}});
 
             axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
                 headers: {
@@ -81,7 +82,7 @@ export class UserController {
     static async changePassword(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -108,7 +109,7 @@ export class UserController {
     static async changePhoto(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -124,7 +125,7 @@ export class UserController {
     static async deleteUser(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }

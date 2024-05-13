@@ -8,7 +8,7 @@ import { conversionCurrency } from "../helpers/helpers";
 export class WalletController {
     static async createWallet(req: ExtendedRequest, res: Response) {
         try {
-            const user = await AppDataSource.getRepository(User).findOne({where: {email: req.user?.email}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -24,7 +24,7 @@ export class WalletController {
 
     static async getWallet(req: ExtendedRequest, res: Response) {
         try {
-            const user = await AppDataSource.getRepository(User).findOne({where: {email: req.user?.email}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -73,7 +73,7 @@ export class WalletController {
 
     static async deleteWallet(req: ExtendedRequest) {
         try {
-            const user = await AppDataSource.getRepository(User).findOne({where: {email: req.user?.email}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
             const wallet = await AppDataSource.
                     getRepository(Wallet).findOne(
                         {
