@@ -36,7 +36,7 @@ export const getToken = async () => {
       audience: audience
     })
     .then((response: any) => {
-      const accessToken = response.data.access_token;
+      const accessToken = response.data;
       return accessToken;
     })
     .catch((error: any) => {

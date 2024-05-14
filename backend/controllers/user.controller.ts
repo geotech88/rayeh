@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { ExtendedRequest } from "../middlewares/Authentication";
 import { AppDataSource } from "../config/ormconfig";
 import { encrypt, getToken } from "../helpers/helpers";
@@ -11,7 +11,7 @@ import { Role } from "../entity/Roles.entity";
 export class UserController {
     static async getAllUsers(req: ExtendedRequest, res: Response) {
         try {
-            console.log('the user information in req:', req.user, ', the auth0UserId:', req.user?.sub);
+            console.log('the user information in req:', req.user, ', the auth0UserId:', req.user?.sub, req.oidc.user);
             const UserRepository = AppDataSource.getRepository(User);
             const users = await UserRepository.find();
             return res.status(200).json({message:"All users fetched successfully", data: users});
@@ -23,7 +23,7 @@ export class UserController {
     static async getMyInfo(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
             return res.status(200).json({ message:"User fetched successfully", data: user});
         } catch (error: any) {
             return res.status(500).json({error: error.message});
@@ -41,7 +41,7 @@ export class UserController {
     }
 
     //TODO: Still an issue with the auth0 update patch request: To fix
-    static async updateUserInfo(req: ExtendedRequest, res: Response) {
+    static async updateUserInfo(req: ExtendedRequest, res: Response, next: NextFunction) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
             const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
@@ -59,18 +59,18 @@ export class UserController {
             user.path = req.body.path;
             await UserRepository.save(user);
             let token = await getToken();
-            let dataObj = JSON.stringify({"user_metadata":{"email": user.email, "name": user.name, "picture": user.path}});
-
-            axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
+            
+            axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, {name: user.name, picture: user.path},{
                 headers: {
-                    "content-type": "application/json",
-                    authorization: `Bearer ${token}`
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${token.access_token}`
                 }
             })
             .then(async (response) => {
-                return res.status(200).json({message: "User updated successfully", data: user});
+                res.status(200).json({message: "User updated successfully", data: user});
             })
             .catch((error: any)=> {
+                // console.log('the error:', error);
                 return res.status(500).json({error: error.message});
             })
 
@@ -92,7 +92,7 @@ export class UserController {
             axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
                 headers: {
                     "content-type": "application/json",
-                    authorization: `Bearer ${token}`
+                    authorization: `Bearer ${token.access_token}`
                 }
             })
             .then((response) => {
@@ -141,7 +141,7 @@ export class UserController {
                 url: `${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`,
                 headers: {
                     'content-type': 'application/json',
-                    'authorization': `Bearer ${token}`
+                    'authorization': `Bearer ${token.access_token}`
                 }
             };
 
