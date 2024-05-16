@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from "typeorm";
+const { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } = require("typeorm");
 import { User } from "./Users.entity";
 import { Trips } from "./Trips.entity";
 import { Invoice } from "./Invoices.entity";
