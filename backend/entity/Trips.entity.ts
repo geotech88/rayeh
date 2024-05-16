@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+require("reflect-metadata");
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./Users.entity";
 import { Tracker } from './Tracker.entity';

@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { ExtendedRequest } from "../middlewares/Authentication";
 import { AppDataSource } from "../config/ormconfig";
 import { encrypt, getToken } from "../helpers/helpers";
@@ -22,7 +22,7 @@ export class UserController {
     static async getMyInfo(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
             return res.status(200).json({ message:"User fetched successfully", data: user});
         } catch (error: any) {
             return res.status(500).json({error: error.message});
@@ -40,36 +40,48 @@ export class UserController {
     }
 
     //TODO: Still an issue with the auth0 update patch request: To fix
-    static async updateUserInfo(req: ExtendedRequest, res: Response) {
+    static async updateUserInfo(req: ExtendedRequest, res: Response, next: NextFunction) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
             if (req.body?.email) {
                 const checkMail = await UserRepository.findOne({where: {email: req.body?.email, id: Not(user.id)}});
                 if (checkMail) {
-                    return res.status(400).json({message: "Email already in use"});
+                    return res.status(401).json({message: "Email already in use"});
                 }
+            }
+            if (!req.user?.sub?.startsWith("auth0") && req.body.email) {
+                return res.status(401).json({message: `Cannot update email for ${req.user?.sub?.split("|")[0]}`})
             }
             user.name = req.body.name;
             user.email = req.body.email;
-            user.path = req.body.path;
+            user.path = req.body.picture;
             await UserRepository.save(user);
             let token = await getToken();
-            let dataObj = {"user_metadata":{"email": user.email, "name": user.name, "picture": user.path}};
+            type AllowedKeys = 'name' | 'email' | 'picture';
 
-            axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
+            const dataObj: { [key: string]: string } = {}; 
+
+            for (const key of ['name', 'email', 'picture'] as AllowedKeys[]) {
+                if (req.body[key]) {
+                    dataObj[key] = req.body[key];
+                }
+            }
+            axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj ,{
                 headers: {
-                    "content-type": "application/json",
-                    authorization: `Bearer ${token}`
+                    "Content-Type": "application/json",
+                    authorization: `Bearer ${token.access_token}`
                 }
             })
             .then(async (response) => {
-                return res.status(200).json({message: "User updated successfully", data: user});
+                const newUser = await UserRepository.find({where: {auth0UserId: req.user?.sub}});
+                res.status(200).json({message: "User updated successfully", data: newUser});
             })
             .catch((error: any)=> {
+                // console.log('the error:', error);
                 return res.status(500).json({error: error.message});
             })
 
@@ -81,7 +93,7 @@ export class UserController {
     static async changePassword(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -91,7 +103,7 @@ export class UserController {
             axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
                 headers: {
                     "content-type": "application/json",
-                    authorization: `Bearer ${token}`
+                    authorization: `Bearer ${token.access_token}`
                 }
             })
             .then((response) => {
@@ -108,7 +120,7 @@ export class UserController {
     static async changePhoto(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -124,7 +136,7 @@ export class UserController {
     static async deleteUser(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {email: req.user?.email}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -140,7 +152,7 @@ export class UserController {
                 url: `${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`,
                 headers: {
                     'content-type': 'application/json',
-                    'authorization': `Bearer ${token}`
+                    'authorization': `Bearer ${token.access_token}`
                 }
             };
 

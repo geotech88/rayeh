@@ -1,5 +1,5 @@
 import { Router, NextFunction, Response } from 'express';
-import { checkIsLoggedIn, ExtendedRequest } from '../middlewares/Authentication';
+import { checkIsLoggedIn, ExtendedRequest, silentAuthentication } from '../middlewares/Authentication';
 import { usersRouter } from './users';
 import { AppDataSource } from '../config/ormconfig';
 import { User } from '../entity/Users.entity';
@@ -19,7 +19,7 @@ const router = Router();
 
 const checkOnDatabase = async (req: ExtendedRequest , res: Response, next: NextFunction) => {
     const UserRepository = AppDataSource.getRepository(User);
-    const findUser = await UserRepository.findOne({where: {email: req.user?.email}});
+    const findUser = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
     if (!findUser) {
         const user = new User();
         const RoleRepository = AppDataSource.getRepository(Role);
@@ -40,6 +40,10 @@ const checkOnDatabase = async (req: ExtendedRequest , res: Response, next: NextF
 router.get('/', (req, res) => {
     res.send("Welcome in the backend part");
 });
+
+// Silent authentication endpoint
+router.get('/auth/silent', silentAuthentication);
+
 
 // router.get('/callback', checkOnDatabase); //will use later, when https domain is set
 router.get('/callback', (req, res, next) => {

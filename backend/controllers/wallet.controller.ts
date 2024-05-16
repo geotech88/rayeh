@@ -8,7 +8,7 @@ import { conversionCurrency } from "../helpers/helpers";
 export class WalletController {
     static async createWallet(req: ExtendedRequest, res: Response) {
         try {
-            const user = await AppDataSource.getRepository(User).findOne({where: {email: req.user?.email}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -24,11 +24,11 @@ export class WalletController {
 
     static async getWallet(req: ExtendedRequest, res: Response) {
         try {
-            const user = await AppDataSource.getRepository(User).findOne({where: {email: req.user?.email}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
-            const wallet = await AppDataSource.getRepository(Wallet).findOne({where: {user: user}});
+            const wallet = await AppDataSource.getRepository(Wallet).findOne({where: {user: {auth0UserId: req.user?.sub}}});
             if (!wallet) {
                 return res.status(404).json({message: "Wallet not found"});
             }
@@ -40,12 +40,16 @@ export class WalletController {
 
     static async updateWalletBalance(req: ExtendedRequest, res: Response) {
         try {
-            const { balance } = req.body;
+            const { balance, type } = req.body;
             const wallet = await AppDataSource.getRepository(Wallet).findOne({where: {id: Number(req.params.id)}});
             if (!wallet) {
                 return res.status(404).json({message: "Wallet not found"});
             }
-            wallet.balance = balance;
+            if (type === 1) {
+                wallet.balance = balance + Number(wallet.balance);
+            } else if (type === -1) {
+                wallet.balance =  Number(wallet.balance) - balance;
+            }
             await AppDataSource.getRepository(Wallet).save(wallet);
             return res.status(200).json({message: "Wallet balance updated successfully", data: wallet});
         } catch (error: any) {
@@ -73,7 +77,7 @@ export class WalletController {
 
     static async deleteWallet(req: ExtendedRequest) {
         try {
-            const user = await AppDataSource.getRepository(User).findOne({where: {email: req.user?.email}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
             const wallet = await AppDataSource.
                     getRepository(Wallet).findOne(
                         {

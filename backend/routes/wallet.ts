@@ -3,8 +3,10 @@ import { WalletController } from '../controllers/wallet.controller';
 
 const walletRouter = Router();
 
-walletRouter.post('/api/wallet/updatebalance/:id', WalletController.updateWalletBalance);
+walletRouter.get('/api/wallet/info', WalletController.getWallet);
 
-walletRouter.post('/api/wallet/updatecurrency/:id', WalletController.updateWalletCurrency);
+walletRouter.patch('/api/wallet/updatebalance/:id', WalletController.updateWalletBalance);
+
+walletRouter.patch('/api/wallet/updatecurrency/:id', WalletController.updateWalletCurrency);
 
 export { walletRouter };

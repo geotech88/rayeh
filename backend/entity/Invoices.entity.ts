@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+require("reflect-metadata");
 import { Column, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./Users.entity";
 import { Transaction } from './Transaction.entity';

@@ -1,4 +1,4 @@
-import 'reflect-metadata';
+require("reflect-metadata");
 import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Role } from "./Roles.entity";
 import { Invoice } from "./Invoices.entity";
@@ -14,7 +14,7 @@ export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({nullable: false})
+    @Column({nullable: false, unique: true})
     auth0UserId: string;
 
     @Column({nullable: false})

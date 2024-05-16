@@ -8,7 +8,7 @@ export class InvoicesController {
     
     static async createInvoice(req: ExtendedRequest, res: Response) {
         try {
-            const user = await AppDataSource.getRepository(User).findOne({where: {email: req.user?.email}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -31,7 +31,7 @@ export class InvoicesController {
 
     static async getAllUserInvoices(req: ExtendedRequest, res: Response) {
         try {
-            const user = await AppDataSource.getRepository(User).findOne({where: {email: req.user?.email}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
