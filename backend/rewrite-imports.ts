@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 
-function rewriteImports(directory) {
+function rewriteImports(directory: any) {
     const files = fs.readdirSync(directory);
 
     for (let file of files) {
