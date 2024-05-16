@@ -2,7 +2,7 @@ require('dotenv').config();
 import express from 'express';
 // import cors from 'cors';
 import { auth } from 'express-openid-connect';
-import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter } from './routes/routes';
+import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter } from './routes/routes.js';
 import { config } from './config/auth-config';
 import { AppDataSource } from './config/ormconfig';
 // import http from 'http';
