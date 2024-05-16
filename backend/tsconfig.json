@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
       "strictPropertyInitialization": false,
-      "target": "ESNext",
+      "target": "ES6",
       "module": "ESNext",
       "outDir": "./dist",
       "rootDir": "./",
