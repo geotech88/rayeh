@@ -1,12 +1,11 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "type": "module",
   "description": "backend of mobile application",
   "main": "dist/index.js",
   "scripts": {
     "watch": "tsc -w",
-    "build": "tsc  && babel dist -d dist --presets=@babel/preset-env",
+    "build": "tsc && node rewrite-imports.js",
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
@@ -38,15 +37,11 @@
     "typeorm": "^0.3.20"
   },
   "devDependencies": {
-    "@babel/cli": "^7.24.5",
-    "@babel/core": "^7.24.5",
-    "@babel/preset-env": "^7.24.5",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
     "@types/node": "^20.12.7",
     "@types/pg": "^8.11.5",
     "@types/socket.io": "^3.0.2",
-    "babel-plugin-module-resolver": "^5.0.2",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsconfig-paths": "^4.2.0",
