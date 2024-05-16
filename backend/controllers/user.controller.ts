@@ -11,7 +11,6 @@ import { Role } from "../entity/Roles.entity";
 export class UserController {
     static async getAllUsers(req: ExtendedRequest, res: Response) {
         try {
-            console.log('the user information in req:', req.user, ', the auth0UserId:', req.user?.sub, req.oidc.user);
             const UserRepository = AppDataSource.getRepository(User);
             const users = await UserRepository.find();
             return res.status(200).json({message:"All users fetched successfully", data: users});
@@ -51,23 +50,35 @@ export class UserController {
             if (req.body?.email) {
                 const checkMail = await UserRepository.findOne({where: {email: req.body?.email, id: Not(user.id)}});
                 if (checkMail) {
-                    return res.status(400).json({message: "Email already in use"});
+                    return res.status(401).json({message: "Email already in use"});
                 }
+            }
+            if (!req.user?.sub?.startsWith("auth0") && req.body.email) {
+                return res.status(401).json({message: `Cannot update email for ${req.user?.sub?.split("|")[0]}`})
             }
             user.name = req.body.name;
             user.email = req.body.email;
-            user.path = req.body.path;
+            user.path = req.body.picture;
             await UserRepository.save(user);
             let token = await getToken();
-            
-            axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, {name: user.name, picture: user.path},{
+            type AllowedKeys = 'name' | 'email' | 'picture';
+
+            const dataObj: { [key: string]: string } = {}; 
+
+            for (const key of ['name', 'email', 'picture'] as AllowedKeys[]) {
+                if (req.body[key]) {
+                    dataObj[key] = req.body[key];
+                }
+            }
+            axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj ,{
                 headers: {
                     "Content-Type": "application/json",
                     authorization: `Bearer ${token.access_token}`
                 }
             })
             .then(async (response) => {
-                res.status(200).json({message: "User updated successfully", data: user});
+                const newUser = await UserRepository.find({where: {auth0UserId: req.user?.sub}});
+                res.status(200).json({message: "User updated successfully", data: newUser});
             })
             .catch((error: any)=> {
                 // console.log('the error:', error);

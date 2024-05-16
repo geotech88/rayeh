@@ -41,8 +41,6 @@ router.get('/', (req, res) => {
     res.send("Welcome in the backend part");
 });
 
-const axios = require('axios');
-
 // Silent authentication endpoint
 router.get('/auth/silent', silentAuthentication);
 
