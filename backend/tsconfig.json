@@ -2,7 +2,7 @@
     "compilerOptions": {
       "strictPropertyInitialization": false,
       "target": "ES6",
-      "module": "ESNext",
+      "module": "commonjs",
       "outDir": "./dist",
       "rootDir": "./",
       "strict": true,
