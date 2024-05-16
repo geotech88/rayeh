@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 require('dotenv').config();
 import express from 'express';
 import cors from 'cors';
@@ -6,20 +5,20 @@ import { auth } from 'express-openid-connect';
 import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter } from './routes/routes';
 import { config } from './config/auth-config';
 import { AppDataSource } from './config/ormconfig';
-import http from 'http';
-import { Server as SocketIOServer, Socket } from 'socket.io';
-import { MessagesController } from './controllers/messages.controller';
+// import http from 'http';
+// import { Server as SocketIOServer, Socket } from 'socket.io';
+// import { MessagesController } from './controllers/messages.controller';
 
 
 AppDataSource.initialize().then(async () => {
     const app = express();
-    const server = http.createServer(app);
-    const io = new SocketIOServer(server, {
-        cors: {
-            origin: 'http://localhost:3000',
-            methods: ['GET', 'POST'],
-        }
-    });
+    // const server = http.createServer(app);
+    // const io = new SocketIOServer(server, {
+    //     cors: {
+    //         origin: 'http://localhost:3000',
+    //         methods: ['GET', 'POST'],
+    //     }
+    // });
     app.use(express.json());
 
     // app.use(cors());
@@ -38,8 +37,8 @@ AppDataSource.initialize().then(async () => {
     app.use(trackerRouter);
     app.use(transactionRouter);
 
-    const messagesController = new MessagesController();
-    const listSocket: Map<string, Socket> = new Map<string, Socket>();
+    // const messagesController = new MessagesController();
+    // const listSocket: Map<string, Socket> = new Map<string, Socket>();
 
     // io.use((socket: Socket, next: any) => {
     //     const request = socket.request;
@@ -49,19 +48,19 @@ AppDataSource.initialize().then(async () => {
     //     next();
     // });
 
-    io.on('connection', (socket: Socket) => {
-        console.log('User connected:', socket.id);
+    // io.on('connection', (socket: Socket) => {
+    //     console.log('User connected:', socket.id);
 
-        socket.on('user_identification', (userId: string) => {
-            listSocket.set(userId, socket);
-        });
+    //     socket.on('user_identification', (userId: string) => {
+    //         listSocket.set(userId, socket);
+    //     });
 
-        messagesController.handleSocketEvents(socket, listSocket);
+    //     messagesController.handleSocketEvents(socket, listSocket);
         
-        socket.on('disconnect', () => {
-            console.log('User disconnected:', socket.id);
-        });
-    });
+    //     socket.on('disconnect', () => {
+    //         console.log('User disconnected:', socket.id);
+    //     });
+    // });
 
     server.listen(process.env.PORT || 3000, () => {
         console.log(`Server is running on port ${process.env.PORT || 3000}`);
