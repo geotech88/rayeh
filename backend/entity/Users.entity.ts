@@ -1,5 +1,6 @@
-import 'reflect-metadata';
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+require("reflect-metadata");
+// import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+const { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } = require("typeorm");
 import { Role } from "./Roles.entity";
 import { Invoice } from "./Invoices.entity";
 import { Message } from "./Messages.entity";

@@ -1,5 +1,6 @@
-import 'reflect-metadata';
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+require("reflect-metadata");
+// import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+const { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } = require("typeorm");
 import { User } from "./Users.entity";
 
 @Entity({ name: 'WalletLogs'})
