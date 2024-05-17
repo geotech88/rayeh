@@ -1,13 +1,15 @@
-require('dotenv').config();
+import 'reflect-metadata';
+import dotenv from 'dotenv';
 import express from 'express';
 import { auth } from 'express-openid-connect';
-import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter } from './routes/routes';
+import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter } from './Routes/routes';
 import { config } from './config/auth-config';
 import { AppDataSource } from './config/ormconfig';
 // import http from 'http';
 // import { Server as SocketIOServer, Socket } from 'socket.io';
 // import { MessagesController } from './controllers/messages.controller';
 
+dotenv.config();
 
 AppDataSource.initialize().then(async () => {
     const app = express();

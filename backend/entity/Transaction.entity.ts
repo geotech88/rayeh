@@ -1,8 +1,8 @@
-const { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } = require("typeorm");
+import 'reflect-metadata';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from "typeorm";
 import { User } from "./Users.entity";
 import { Trips } from "./Trips.entity";
 import { Invoice } from "./Invoices.entity";
-require("reflect-metadata");
 
 @Entity({ name: 'Transaction'})
 export class Transaction {
