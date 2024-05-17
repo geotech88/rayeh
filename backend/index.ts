@@ -1,6 +1,6 @@
-import 'reflect-metadata';
-import dotenv from 'dotenv';
+require('dotenv').config();
 import express from 'express';
+// import cors from 'cors';
 import { auth } from 'express-openid-connect';
 import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter } from './Routes/routes';
 import { config } from './config/auth-config';
@@ -8,8 +8,6 @@ import { AppDataSource } from './config/ormconfig';
 // import http from 'http';
 // import { Server as SocketIOServer, Socket } from 'socket.io';
 // import { MessagesController } from './controllers/messages.controller';
-
-dotenv.config();
 
 AppDataSource.initialize().then(async () => {
     const app = express();

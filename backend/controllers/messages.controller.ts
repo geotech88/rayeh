@@ -1,7 +1,7 @@
 import { AppDataSource } from "../config/ormconfig";
 import { messageDto, messageUsersDto } from "../dto/message.dto";
 import { Message } from "../entity/Messages.entity";
-import { Socket } from "socket.io";
+// import { Socket } from "socket.io";
 import { User } from "../entity/Users.entity";
 
 export class MessagesController {
@@ -73,32 +73,32 @@ export class MessagesController {
     }
 
 
-    handleSocketEvents(socket: Socket, listSocket: Map<string, Socket>) {
-        socket.on('sendMessage', async (data: messageDto) => {
-            try {
-                const newMessage = await this.storeMessage(data);
-                listSocket.get(data.receiverId)?.emit('newMessage', newMessage);
-            } catch (error: any) {
-                socket.emit('error', error.message);
-            }
-        });
+    // handleSocketEvents(socket: Socket, listSocket: Map<string, Socket>) {
+    //     socket.on('sendMessage', async (data: messageDto) => {
+    //         try {
+    //             const newMessage = await this.storeMessage(data);
+    //             listSocket.get(data.receiverId)?.emit('newMessage', newMessage);
+    //         } catch (error: any) {
+    //             socket.emit('error', error.message);
+    //         }
+    //     });
 
-        socket.on('getMessages', async (data: messageUsersDto) => {
-            try {
-                const messages = await this.getAllMessages(data);
-                listSocket.get(data.user2Id)?.emit('retrieveMessages', messages);
-            } catch (error: any) {
-                socket.emit('error', error.message);
-            }
-        });
+    //     socket.on('getMessages', async (data: messageUsersDto) => {
+    //         try {
+    //             const messages = await this.getAllMessages(data);
+    //             listSocket.get(data.user2Id)?.emit('retrieveMessages', messages);
+    //         } catch (error: any) {
+    //             socket.emit('error', error.message);
+    //         }
+    //     });
 
-        socket.on('discussions', async (data: any) => {
-            try {
-                const discussions = await this.getAllDiscussions(data);
-                socket.emit('retrieveDiscussions', discussions);
-            } catch (error: any) {
-                socket.emit('error', error.message);
-            }
-        })
-    }
+    //     socket.on('discussions', async (data: any) => {
+    //         try {
+    //             const discussions = await this.getAllDiscussions(data);
+    //             socket.emit('retrieveDiscussions', discussions);
+    //         } catch (error: any) {
+    //             socket.emit('error', error.message);
+    //         }
+    //     })
+    // }
 }

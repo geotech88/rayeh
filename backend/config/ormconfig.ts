@@ -1,8 +1,6 @@
-import dotenv from 'dotenv';
+require('dotenv').config();
 import { DataSource, DataSourceOptions } from "typeorm";
 import fs from 'fs';
-
-dotenv.config();
 
 const config = {
     type: 'postgres',
@@ -13,14 +11,14 @@ const config = {
     database: process.env.DB_DATABASE,
     synchronize: true,
     logging: process.env.MODE === "DEV" ? false : false,
-    entities: process.env.MODE === "DEV" ? ["entity/*.entity.ts"] : ["dist/entity/*.entity{.js,.ts}"],
-    migrations: process.env.MODE === "DEV" ? ["migrations/*.ts"] : ["dist/migrations/*{.js,.ts}"],
-    ssl: process.env.MODE !== 'DEV'
-    ? {
-        rejectUnauthorized: true,
-        ca: fs.readFileSync('certs/ca.crt').toString(),
-      }
-    : false, 
+    entities: process.env.MODE === "DEV" ? ["entity/*.entity.ts"] : ["dist/entity/*.entity.ts"],
+    migrations: process.env.MODE === "DEV" ? ["migrations/*.ts"] : ["dist/migrations/*.ts"],
+    // ssl: process.env.MODE !== 'DEV'
+    // ? {
+    //     rejectUnauthorized: true,
+    //     ca: fs.readFileSync('certs/ca.crt').toString(),
+    //   }
+    // : false, 
 };
 
 export default { config };
