@@ -1,4 +1,3 @@
-import 'reflect-metadata';
 import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from "typeorm";
 import { User } from "./Users.entity";
 import { Trips } from "./Trips.entity";
