@@ -1,25 +1,25 @@
-import { Request, Response } from 'express';
-import { BlobServiceClient, StorageSharedKeyCredential } from '@azure/storage-blob';
+import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { ExtendedRequest } from '../middlewares/Authentication';
+import { S3 } from 'aws-sdk';
+
 require('dotenv').config();
 
-export class GeneralCDNController {
-    private blobServiceClient: BlobServiceClient;
-    private publicContainer: string;
+export class GenralCDNController {
+    private s3: S3;
+    private bucketPublic: string;
 
     constructor() {
-        const accountName = process.env.AZURE_STORAGE_ACCOUNT_NAME || '';
-        const accountKey = process.env.AZURE_STORAGE_ACCOUNT_KEY || '';
-        const sharedKeyCredential = new StorageSharedKeyCredential(accountName, accountKey);
-        
-        this.publicContainer = process.env.AZURE_STORAGE_PUBLIC_CONTAINER || '';
-        this.blobServiceClient = new BlobServiceClient(
-            `https://${accountName}.blob.core.windows.net`,
-            sharedKeyCredential
-        );
+        this.s3 = new S3({
+            endpoint: process.env.DO_SPACES_ENDPOINT,
+            accessKeyId: process.env.DO_SPACES_KEY,
+            secretAccessKey: process.env.DO_SPACES_SECRET,
+            region: 'us-east-1',
+        });
+        this.bucketPublic = process.env.DO_SPACES_PUBLIC_BUCKET || '';
     }
 
-    public async uploadFile(req: Request, res: Response): Promise<Response> {
+    public async uploadFile(req: ExtendedRequest, res: Response): Promise<Response> {
         try {
             const { file, folder_name, file_name } = req.body;
 
@@ -27,36 +27,41 @@ export class GeneralCDNController {
                 return res.status(400).json({ error: 'Invalid request parameters' });
             }
 
-            const containerName = this.publicContainer
-            const blobName = `${folder_name}/${file_name || uuidv4()}`;
-            const containerClient = this.blobServiceClient.getContainerClient(containerName);
-            const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+            const bucketName = this.bucketPublic;
+            const key = `${folder_name}/${file_name || uuidv4()}`;
+            const buffer = Buffer.from(file, 'base64');
 
-            await blockBlobClient.uploadData(Buffer.from(file, 'base64'), {
-                blobHTTPHeaders: { blobContentType: 'application/octet-stream' }
-            });
+            await this.s3.putObject({
+                Bucket: bucketName,
+                Key: key,
+                Body: buffer,
+                ACL: 'public-read',
+                ContentType: 'application/octet-stream'
+            }).promise();
 
-            const fileUrl = blockBlobClient.url;
+            const fileUrl = `${process.env.DO_SPACES_ENDPOINT}/${bucketName}/${key}`;
             return res.status(200).json({ file_url_or_secret_key: fileUrl });
+
         } catch (error) {
             console.error('Error uploading file:', error);
             return res.status(500).json({ error: 'Internal Server Error' });
         }
     }
 
-    public async deleteFile(req: Request, res: Response): Promise<Response> {
+    public async deleteFile(req: ExtendedRequest, res: Response): Promise<Response> {
         try {
             const { file_path } = req.body;
 
-            if ( !file_path ) {
+            if (!file_path) {
                 return res.status(400).json({ error: 'Invalid request parameters' });
             }
 
-            const containerName = this.publicContainer;
-            const containerClient = this.blobServiceClient.getContainerClient(containerName);
-            const blockBlobClient = containerClient.getBlockBlobClient(file_path);
+            const bucketName = this.bucketPublic;
 
-            await blockBlobClient.delete();
+            await this.s3.deleteObject({
+                Bucket: bucketName,
+                Key: file_path
+            }).promise();
 
             return res.status(200).json({ message: 'File deleted successfully' });
         } catch (error) {
