@@ -13,12 +13,12 @@ const config = {
     logging: process.env.MODE === "DEV" ? false : false,
     entities: process.env.MODE === "DEV" ? ["entity/*.entity.ts"] : ["dist/entity/*.entity.js"],
     migrations: process.env.MODE === "DEV" ? ["migrations/*.ts"] : ["dist/migrations/*.js"],
-    ssl: process.env.MODE !== 'DEV'
-    ? {
-        rejectUnauthorized: true,
-        ca: fs.readFileSync('certs/ca.crt').toString(),
-      }
-    : false, 
+    // ssl: process.env.MODE !== 'DEV'
+    // ? {
+    //     rejectUnauthorized: true,
+    //     ca: fs.readFileSync('certs/ca.crt').toString(),
+    //   }
+    // : false, 
 };
 
 export default { config };

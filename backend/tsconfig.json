@@ -4,7 +4,7 @@
     "target": "ES6",
     "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": "./",
+    "rootDir": "./src",
     "strict": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
@@ -14,5 +14,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
+  "exclude": ["dist", "node_modules"]
   // "include": ["src/**/*"]
 }
