@@ -2,12 +2,12 @@ require('dotenv').config();
 import express from 'express';
 // import cors from 'cors';
 import { auth } from 'express-openid-connect';
-import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter } from './src/routes/routes';
-import { config } from './src/config/auth-config';
-import { AppDataSource } from './src/config/ormconfig';
+import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter } from './routes/routes';
+import { config } from './config/auth-config';
+import { AppDataSource } from './config/ormconfig';
 import http from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
-import { MessagesController } from './src/controllers/messages.controller';
+import { MessagesController } from './controllers/messages.controller';
 
 AppDataSource.initialize().then(async () => {
     const app = express();
