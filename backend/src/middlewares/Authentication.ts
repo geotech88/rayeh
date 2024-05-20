@@ -6,6 +6,9 @@ import { getToken } from '../helpers/helpers';
 
 export interface ExtendedRequest extends Request {
   user?: JwtPayload;
+  oidc?: {
+    idToken?: string;
+  };
 }
 
 const client = new JwksClient({
