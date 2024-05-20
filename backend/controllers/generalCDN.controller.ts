@@ -10,15 +10,14 @@ export class GenralCDNController {
     private bucketPublic: string;
 
     constructor() {
-        const spaceEndpoint = new Endpoint(process.env.DO_SPACES_ENDPOINT || '')
+        const spaceEndpoint = new Endpoint('nyc3.cdn.digitaloceanspaces.com')
         this.s3 = new S3({
             endpoint: spaceEndpoint,
-            accessKeyId: process.env.DO_SPACES_KEY,
-            secretAccessKey: process.env.DO_SPACES_SECRET,
+            accessKeyId: 'dop_v1_f8919d43eb378ef5172bdba7c1ccba30bd08a03d756f8bd925ac3d054b149023',
+            secretAccessKey: 'G93dkl4k/d6ZE0juuG5BPHY28tAUf8lSZCEVh35w6Zg',
             region: 'nyc3'
         });
-        console.log('secret:', process.env.DO_SPACES_SECRET)
-        this.bucketPublic = process.env.DO_SPACES_PUBLIC_BUCKET || '';
+        this.bucketPublic = 'rayeh-cdn-service';
     }
 
     public async uploadFile(req: ExtendedRequest): Promise<any> {
