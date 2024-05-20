@@ -1,14 +1,18 @@
 {
   "compilerOptions": {
+    "strictPropertyInitialization": false,
     "target": "ES6",
     "module": "commonjs",
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "./",
     "strict": true,
+    "moduleResolution": "node",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": ["**/*.ts"],
