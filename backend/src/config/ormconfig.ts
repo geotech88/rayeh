@@ -16,7 +16,7 @@ const config = {
     ssl: process.env.MODE !== 'DEV'
     ? {
         rejectUnauthorized: true,
-        ca: fs.readFileSync('certs/ca.crt').toString(),
+        ca: fs.readFileSync('../certs/ca.crt').toString(),
       }
     : false, 
 };
