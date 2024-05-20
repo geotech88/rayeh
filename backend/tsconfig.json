@@ -3,8 +3,8 @@
     "strictPropertyInitialization": false,
     "target": "ES6",
     "module": "commonjs",
-    "outDir": "./dist",
-    "rootDir": "./",
+    "outDir": "./src/dist",
+    "rootDir": "./src",
     "strict": true,
     "moduleResolution": "node",
     "esModuleInterop": true,
@@ -14,5 +14,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  // "include": ["src/**/*"]
+  "include": ["src/**/*"],             // Include all .ts files in the src directory
+  "exclude": ["node_modules", "dist"] 
 }
