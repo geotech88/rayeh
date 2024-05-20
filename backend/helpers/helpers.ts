@@ -1,10 +1,11 @@
 import * as jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
-require('dotenv').config();
+import dotenv from 'dotenv';
 import { payload } from "../dto/user.dto";
-import { Decimal128 } from "typeorm";
 import { Reviews } from "../entity/Reviews.entity";
-const axios = require('axios');
+import axios from 'axios';
+
+dotenv.config();
 
 const { JWT_SECRET = "" } = process.env;
 export class encrypt {

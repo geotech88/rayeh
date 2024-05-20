@@ -7,6 +7,7 @@ import { Not } from "typeorm";
 import axios from "axios";
 import { WalletController } from "./wallet.controller";
 import { Role } from "../entity/Roles.entity";
+import { GenralCDNController } from "./generalCDN.controller";
 
 export class UserController {
     static async getAllUsers(req: ExtendedRequest, res: Response) {
@@ -119,13 +120,18 @@ export class UserController {
 
     static async changePhoto(req: ExtendedRequest, res: Response) {
         try {
+            const CDNController = new GenralCDNController();
             const UserRepository = AppDataSource.getRepository(User);
             const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
-            // const path = await uploadFile(req.file);
-            // user.path = path;
+            const result = await CDNController.uploadFile(req);
+            if (result.message) {
+                return res.status(400).json({message: result.message});
+            }
+            const path = result.file_url;
+            user.path = path;
             await UserRepository.save(user);
             return res.status(200).json({message: "Profile picture updated successfully"});
         } catch (error: any) {
