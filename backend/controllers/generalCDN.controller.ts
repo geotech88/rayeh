@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { ExtendedRequest } from '../middlewares/Authentication';
-import { S3 } from 'aws-sdk';
+import { S3, Endpoint } from 'aws-sdk';
 
 require('dotenv').config();
 
@@ -10,41 +10,43 @@ export class GenralCDNController {
     private bucketPublic: string;
 
     constructor() {
+        const spaceEndpoint = new Endpoint(process.env.DO_SPACES_ENDPOINT || '')
         this.s3 = new S3({
-            endpoint: process.env.DO_SPACES_ENDPOINT,
+            endpoint: spaceEndpoint,
             accessKeyId: process.env.DO_SPACES_KEY,
             secretAccessKey: process.env.DO_SPACES_SECRET,
-            region: 'us-east-1',
+            region: 'nyc3'
         });
+        console.log('secret:', process.env.DO_SPACES_SECRET)
         this.bucketPublic = process.env.DO_SPACES_PUBLIC_BUCKET || '';
     }
 
-    public async uploadFile(req: ExtendedRequest, res: Response): Promise<Response> {
+    public async uploadFile(req: ExtendedRequest): Promise<any> {
         try {
-            const { file, folder_name, file_name } = req.body;
-
-            if (!file || !folder_name) {
-                return res.status(400).json({ error: 'Invalid request parameters' });
+            const file_name = req.body?.file_name;
+            const file = req.file;
+            if (!file_name || !file) {
+                return {message: 'invalid request parameters'};
             }
-
+            const ext = file_name.split('.').pop();
+            const filename = file_name.split('.').slice(0, -1).join();
             const bucketName = this.bucketPublic;
-            const key = `${folder_name}/${file_name || uuidv4()}`;
-            const buffer = Buffer.from(file, 'base64');
+            const key = `${filename + uuidv4() + '.' + ext}`;
+            console.log('bucketName:', bucketName);
 
-            await this.s3.putObject({
+            const { Location } = await this.s3.upload({
                 Bucket: bucketName,
                 Key: key,
-                Body: buffer,
+                Body: file?.buffer,
                 ACL: 'public-read',
-                ContentType: 'application/octet-stream'
+                ContentType: file?.mimetype
             }).promise();
 
-            const fileUrl = `${process.env.DO_SPACES_ENDPOINT}/${bucketName}/${key}`;
-            return res.status(200).json({ file_url_or_secret_key: fileUrl });
+            return { file_url: Location };
 
         } catch (error) {
             console.error('Error uploading file:', error);
-            return res.status(500).json({ error: 'Internal Server Error' });
+            return { message: 'Internal Server Error' };
         }
     }
 
