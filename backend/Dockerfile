@@ -9,6 +9,7 @@ COPY package*.json ./
 
 # Step 4: Install dependencies
 RUN npm install
+RUN npm install --save-dev @types/uuid @types/multer @types/socket.io
 
 # Step 5: Copy the rest of your app's source code
 COPY . .
