@@ -29,24 +29,6 @@ function getKey(header: any, callback: (err: Error | null, signingKey?: string) 
   });
 }
 
-export const silentAuthentication = async (req:ExtendedRequest, res:Response) => {
-  try {
-    const token = await getToken();
-    console.log('data received of token:', token);
-      const response = await axios.post(`${process.env.AUTH0_DOMAIN}/oauth/token`, {
-          grant_type: 'refresh_token',
-          client_id: process.env.AUTH0_CLIENT_ID,
-          client_secret: process.env.AUTH0_CLIENT_SECRET,
-          refresh_token: token.refresh_token // Assuming refresh token is stored in a cookie
-      });
-
-      // Return the new ID token to the client
-      res.json({ id_token: response.data.id_token });
-  } catch (error: any) {
-      console.error('Silent authentication error:', error.message);
-      res.status(500).json({ error: 'An error occurred during silent authentication' });
-  }
-}
 
 export const checkIsLoggedIn = (req: ExtendedRequest, res: Response, next: NextFunction) => {
     const accessToken = req.oidc?.idToken //add authorization bearer here if needed

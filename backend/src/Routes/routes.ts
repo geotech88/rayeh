@@ -1,5 +1,5 @@
 import { Router, NextFunction, Response } from 'express';
-import { checkIsLoggedIn, ExtendedRequest, silentAuthentication } from '../middlewares/Authentication';
+import { checkIsLoggedIn, ExtendedRequest } from '../middlewares/Authentication';
 import { usersRouter } from './users';
 import { AppDataSource } from '../config/ormconfig';
 import { User } from '../entity/Users.entity';
@@ -14,6 +14,7 @@ import { walletLogsRouter } from './walletLogs';
 import { reviewRouter } from './reviews';
 import { trackerRouter } from './tracker';
 import { transactionRouter } from './transactions';
+import { authRouter } from './authentication';
 
 const router = Router();
 
@@ -21,18 +22,7 @@ const checkOnDatabase = async (req: ExtendedRequest , res: Response, next: NextF
     const UserRepository = AppDataSource.getRepository(User);
     const findUser = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
     if (!findUser) {
-        const user = new User();
-        const RoleRepository = AppDataSource.getRepository(Role);
-        const roleUser = new Role();
-        roleUser.name = 'user';
-        await RoleRepository.save(roleUser);
-        user.name = req.user?.name as string;
-        user.email = req.user?.email as string;
-        user.auth0UserId = req.user?.sub as string;
-        user.path = req.user?.picture as string;
-        user.role = roleUser;
-        await UserRepository.save(user);
-        await WalletController.createWallet(req, res);
+        return res.status(403).json({message: 'the user is not authenticated in backend'});
     }
     next();
 }
@@ -41,18 +31,11 @@ router.get('/', (req, res) => {
     res.send("Welcome in the backend part");
 });
 
-// Silent authentication endpoint
-router.get('/auth/silent', silentAuthentication);
-
-
-// router.get('/callback', checkOnDatabase); //will use later, when https domain is set
-router.get('/callback', (req, res, next) => {
-    console.log('Welcome in the callback function');
-})
+router.use('/api/admin', authorized(['admin']))
 
 router.use('/api', checkIsLoggedIn, 
         checkOnDatabase, //temporary solution, until https domain is set to use the callback instead
         authorized(['user', 'admin']));
 
 
-export { router, usersRouter, requestRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter };
+export { router, usersRouter, requestRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter, authRouter  };

@@ -2,7 +2,7 @@ require('dotenv').config();
 import express from 'express';
 // import cors from 'cors';
 import { auth } from 'express-openid-connect';
-import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter } from './Routes/routes';
+import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter, authRouter } from './Routes/routes';
 import { config } from './config/auth-config';
 import { AppDataSource } from './config/ormconfig';
 import http from 'http';
@@ -35,6 +35,7 @@ AppDataSource.initialize().then(async () => {
     app.use(reviewRouter);
     app.use(trackerRouter);
     app.use(transactionRouter);
+    app.use(authRouter);
 
     const messagesController = new MessagesController();
     const listSocket: Map<string, Socket> = new Map<string, Socket>();
