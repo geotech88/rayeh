@@ -11,7 +11,7 @@ COPY package*.json ./
 RUN npm install
 
 # Step 5: Copy the rest of your app's source code
-COPY .
+COPY src ./src
 # COPY ./src/DigiCertGlobalRootCA.crt /app
 
 # Step 6: Compile TypeScript to JavaScript. 
@@ -23,4 +23,5 @@ EXPOSE 3000
 
 # Step 8: Define the command to run your app using the compiled JavaScript
 # Note: Adjust "dist/index.js" based on your output directory and main file name
-CMD [ "node", "dist/index.js" ]
+# CMD [ "node", "dist/index.js" ]
+CMD ["npm", "start"]
