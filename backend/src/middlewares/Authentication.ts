@@ -31,8 +31,11 @@ function getKey(header: any, callback: (err: Error | null, signingKey?: string) 
 
 
 export const checkIsLoggedIn = (req: ExtendedRequest, res: Response, next: NextFunction) => {
-    const accessToken = req.oidc?.idToken //add authorization bearer here if needed
-    if (!accessToken) {
+    const authHeader = req.headers.authorization;
+    let accessToken;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      accessToken = authHeader.split(' ')[1];
+    } else {
       return res.status(401).send({ exception: 'Unauthorized', message: 'No authorization token provided' });
     }
   
@@ -42,8 +45,10 @@ export const checkIsLoggedIn = (req: ExtendedRequest, res: Response, next: NextF
       algorithms: [process.env.TOKEN_SIGNIN_ALG as any]
     }, (err, decoded) => {
       if (err) {
+        console.log('error:', err);
         return res.status(401).send({ exception: err, message: 'Unauthorized', err });
       }
+
       const decodedPayload = decoded as jwt.JwtPayload;
       
       const username = decodedPayload.name;
@@ -57,3 +62,32 @@ export const checkIsLoggedIn = (req: ExtendedRequest, res: Response, next: NextF
         next();
     });
   };
+
+// export const checkIsLoggedIn = (req: ExtendedRequest, res: Response, next: NextFunction) => {
+//   const accessToken = req.oidc?.idToken //add authorization bearer here if needed
+//   if (!accessToken) {
+//     return res.status(401).send({ exception: 'Unauthorized', message: 'No authorization token provided' });
+//   }
+
+//   jwt.verify(accessToken, getKey, {
+//   // audience: process.env.AUTH0_AUDIENCE,
+//     issuer: `${process.env.AUTH0_DOMAIN}/`,
+//     algorithms: [process.env.TOKEN_SIGNIN_ALG as any]
+//   }, (err, decoded) => {
+//     if (err) {
+//       return res.status(401).send({ exception: err, message: 'Unauthorized', err });
+//     }
+//     const decodedPayload = decoded as jwt.JwtPayload;
+    
+//     const username = decodedPayload.name;
+
+//     if (!username) {
+//         return res.status(401).send({ exception: 'Unauthorized', message: "Unauthorized, You're not Logged In" });
+//       }
+  
+//       // If org_uuid matches, attach decoded token to request and proceed
+//       req.user = decodedPayload;
+//       next();
+//   });
+// };
+

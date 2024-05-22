@@ -3,6 +3,6 @@ import { AuthenticationController } from '../controllers/authentication.controll
 
 const authRouter = Router();
 
-authRouter.post('/api/auth', AuthenticationController.addUser);
+authRouter.post('/auth', AuthenticationController.addUser);
 
 export { authRouter };

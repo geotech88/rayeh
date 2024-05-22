@@ -41,11 +41,13 @@ export class TripsController {
         }
     }
 
+    //add user in response, rating, time remaining for the trip
     static async getTripsBySearch(req: ExtendedRequest, res: Response) {
         try {
             const { from, to } = req.body;
             const fromDate = new Date() as Date;
             const trips = await AppDataSource.getRepository(Trips).find({
+                relations: {user: true},
                 where: {
                   date: MoreThanOrEqual(fromDate),
                   to: to,
@@ -74,6 +76,7 @@ export class TripsController {
         }
     }
 
+    //add reviews to each trip, transaction, and invoice
     static async getTripsByUserId(req: ExtendedRequest, res: Response) {
         try {
             const TripsRepository = AppDataSource.getRepository(Trips);
