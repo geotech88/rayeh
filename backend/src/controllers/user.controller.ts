@@ -60,31 +60,32 @@ export class UserController {
             user.name = req.body.name;
             user.email = req.body.email;
             user.path = req.body.picture;
+            user.profession = req.body.profession;
             await UserRepository.save(user);
             let token = await getToken();
-            type AllowedKeys = 'name' | 'email' | 'picture';
+            type AllowedKeys = 'name' | 'email' | 'picture' | "profession";
 
             const dataObj: { [key: string]: string } = {}; 
 
-            for (const key of ['name', 'email', 'picture'] as AllowedKeys[]) {
+            for (const key of ['name', 'email', 'picture', 'profession'] as AllowedKeys[]) {
                 if (req.body[key]) {
                     dataObj[key] = req.body[key];
                 }
             }
-            axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj ,{
-                headers: {
-                    "Content-Type": "application/json",
-                    authorization: `Bearer ${token.access_token}`
-                }
-            })
-            .then(async (response) => {
-                const newUser = await UserRepository.find({where: {auth0UserId: req.user?.sub}});
-                res.status(200).json({message: "User updated successfully", data: newUser});
-            })
-            .catch((error: any)=> {
-                // console.log('the error:', error);
-                return res.status(500).json({error: error.message});
-            })
+            // axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj ,{
+            //     headers: {
+            //         "Content-Type": "application/json",
+            //         authorization: `Bearer ${token.access_token}`
+            //     }
+            // })
+            // .then(async (response) => {
+            //     const newUser = await UserRepository.find({where: {auth0UserId: req.user?.sub}});
+            //     res.status(200).json({message: "User updated successfully", data: newUser});
+            // })
+            // .catch((error: any)=> {
+            //     // console.log('the error:', error);
+            //     return res.status(500).json({error: error.message});
+            // })
 
         } catch (error: any) {
             return res.status(500).json({error: error.message});
@@ -101,18 +102,18 @@ export class UserController {
             
             let token = await getToken();
             let dataObj = JSON.stringify({"password": req.body.password, "connection": "Username-Password-Authentication"});
-            axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
-                headers: {
-                    "content-type": "application/json",
-                    authorization: `Bearer ${token.access_token}`
-                }
-            })
-            .then((response) => {
-                return res.status(200).json({message: "Password changed successfully", data: user});
-            })
-            .catch((error: any)=> {
-                return res.status(500).json({error: error.message});
-            })
+            // axios.patch(`${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`, dataObj,{
+            //     headers: {
+            //         "content-type": "application/json",
+            //         authorization: `Bearer ${token.access_token}`
+            //     }
+            // })
+            // .then((response) => {
+            //     return res.status(200).json({message: "Password changed successfully", data: user});
+            // })
+            // .catch((error: any)=> {
+            //     return res.status(500).json({error: error.message});
+            // })
         } catch (error: any) {
             return res.status(500).json({error: error.message});
         }
@@ -162,11 +163,11 @@ export class UserController {
                 }
             };
 
-            await axios.request(options).then((response) => {
-                console.log(response.data);
-            }).catch((error: any)=> {
-                return res.status(500).json({error: error.message});
-            })
+            // await axios.request(options).then((response) => {
+            //     console.log(response.data);
+            // }).catch((error: any)=> {
+            //     return res.status(500).json({error: error.message});
+            // })
             return res.status(200).json({message: "User deleted successfully"});
         } catch (error: any) {
             return res.status(500).json({error: error.message});
