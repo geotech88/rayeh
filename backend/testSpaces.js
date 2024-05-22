@@ -1,5 +1,5 @@
 require('dotenv').config();
-const AWS = require('aws-sdk');
+const AWS = require('@aws-sdk/client-s3');
 
 // Configure the endpoint for DigitalOcean Spaces
 const spacesEndpoint = new AWS.Endpoint('/rayeh-cdn-service.nyc3.cdn.digitaloceanspaces.com');
