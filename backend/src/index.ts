@@ -2,8 +2,8 @@ require('dotenv').config();
 import express from 'express';
 // import cors from 'cors';
 import { auth } from 'express-openid-connect';
-import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter } from './routes/routes';
-import { config } from './config/auth-config';
+import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter, authRouter } from './routes/routes';
+// import { config } from './config/auth-config';
 import { AppDataSource } from './config/ormconfig';
 import http from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
@@ -14,7 +14,7 @@ AppDataSource.initialize().then(async () => {
     const server = http.createServer(app);
     const io = new SocketIOServer(server, {
         cors: {
-            origin: 'http://localhost:3000',
+            origin: '*',
             methods: ['GET', 'POST'],
         }
     });
@@ -22,7 +22,7 @@ AppDataSource.initialize().then(async () => {
 
     // app.use(cors());
 
-    app.use(auth(config));
+    // app.use(auth(config));
     app.use(express.json());
     // app.use(express.urlencoded({ extended: true }));
     app.use(router);
@@ -35,6 +35,7 @@ AppDataSource.initialize().then(async () => {
     app.use(reviewRouter);
     app.use(trackerRouter);
     app.use(transactionRouter);
+    app.use(authRouter);
 
     const messagesController = new MessagesController();
     const listSocket: Map<string, Socket> = new Map<string, Socket>();

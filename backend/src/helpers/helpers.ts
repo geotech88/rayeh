@@ -50,9 +50,6 @@ export const calculateReviewsAverage = (reviews: Reviews[]) => {
     return sum / reviews.length || 0;
 }
 
-// export const uploadFile = async (file: any) => {
-
-// }
 
 export const conversionCurrency = async (from: string, to: string, amount: number): Promise<number> => {
   //TODO: will use an api request to convert the currency
