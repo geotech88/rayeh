@@ -50,9 +50,9 @@ router.get('/callback', (req, res, next) => {
     console.log('Welcome in the callback function');
 })
 
-router.use('/api', checkIsLoggedIn, 
-        checkOnDatabase, //temporary solution, until https domain is set to use the callback instead
-        authorized(['user', 'admin']));
+// router.use('/api', checkIsLoggedIn, 
+//         checkOnDatabase, //temporary solution, until https domain is set to use the callback instead
+//         authorized(['user', 'admin']));
 
 
 export { router, usersRouter, requestRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter };
