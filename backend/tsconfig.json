@@ -14,6 +14,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true
   },
-  "include": ["src/**/*"],             // Include all .ts files in the src directory
+  "include": ["src/**/*","custom-types.d.ts"],             // Include all .ts files in the src directory
   "exclude": ["node_modules", "dist"] 
 }
