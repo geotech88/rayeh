@@ -14,9 +14,9 @@ export class AuthenticationController {
         if (!token) {
             return res.status(401).json({ message: 'Access token is missing or invalid' });
         }
-        if (!role) {
-            return res.status(400).json({message: 'missing parameter!'})
-        }
+        // if (!role) {
+        //     return res.status(400).json({message: 'missing parameter!'})
+        // }
 
       
         try {
@@ -38,7 +38,7 @@ export class AuthenticationController {
             const newUser = new User();
             const RoleRepository = AppDataSource.getRepository(Role);
             const roleUser = new Role();
-            roleUser.name = req.body.role;
+            roleUser.name = 'user';
             await RoleRepository.save(roleUser);
             newUser.name = auth0User.name as string;
             newUser.email = auth0User.email as string;
