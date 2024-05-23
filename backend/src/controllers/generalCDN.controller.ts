@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 import { ExtendedRequest } from '../middlewares/Authentication';
 import { S3, Endpoint } from 'aws-sdk';
 
@@ -30,7 +30,7 @@ export class GenralCDNController {
             const ext = file_name.split('.').pop();
             const filename = file_name.split('.').slice(0, -1).join();
             const bucketName = this.bucketPublic;
-            const key = `${filename + uuidv4() + '.' + ext}`;
+            const key = `${filename + nanoid() + '.' + ext}`;
             console.log('bucketName:', bucketName);
 
             const { Location } = await this.s3.upload({
