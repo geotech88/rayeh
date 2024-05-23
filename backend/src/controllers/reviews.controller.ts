@@ -9,7 +9,7 @@ export class ReviewsController {
     static async createReview(req: ExtendedRequest, res: Response) {
         try {
             const { value, rating, reviewedUserId } = req.body;
-            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.userId}});
             const reviewedUser = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: reviewedUserId}});
             if (!user || !reviewedUser) {
                 return res.status(404).send({ message: "User not found" });

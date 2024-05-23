@@ -7,7 +7,7 @@ export class WalletLogsController {
     static async createWalletLog(req: any, res: Response) {
         try {
             const { balance, currency, amount } = req.body;
-            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}})
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.userId}})
             if (!user) {
                 return res.status(404).send({message: "user not found"})
             }
@@ -26,7 +26,7 @@ export class WalletLogsController {
 
     static async getAllUserWalletLogs(req: any, res: Response) {
         try {
-            const user = await AppDataSource.getRepository(User).find({where: {auth0UserId: req.user?.sub}})
+            const user = await AppDataSource.getRepository(User).find({where: {auth0UserId: req.user?.userId}})
             if (!user) {
                 return res.status(404).send({message: "user not found"})
             }

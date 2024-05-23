@@ -10,7 +10,7 @@ export class TripsController {
         try {
             const { from, to, date, description } = req.body;
             const TripsRepository = AppDataSource.getRepository(Trips);
-            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.userId}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }

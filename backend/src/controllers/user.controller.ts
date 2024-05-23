@@ -4,7 +4,6 @@ import { AppDataSource } from "../config/ormconfig";
 import { encrypt, getToken } from "../helpers/helpers";
 import { User } from "../entity/Users.entity";
 import { Not } from "typeorm";
-import axios from "axios";
 import { WalletController } from "./wallet.controller";
 import { Role } from "../entity/Roles.entity";
 // import { GenralCDNController } from "./generalCDN.controller";
@@ -23,7 +22,7 @@ export class UserController {
     static async getMyInfo(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.userId}});
             return res.status(200).json({ message:"User fetched successfully", data: user});
         } catch (error: any) {
             return res.status(500).json({error: error.message});
@@ -44,7 +43,7 @@ export class UserController {
     static async updateUserInfo(req: ExtendedRequest, res: Response, next: NextFunction) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.userId}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -54,8 +53,8 @@ export class UserController {
                     return res.status(401).json({message: "Email already in use"});
                 }
             }
-            if (!req.user?.sub?.startsWith("auth0") && req.body.email) {
-                return res.status(401).json({message: `Cannot update email for ${req.user?.sub?.split("|")[0]}`})
+            if (!req.user?.userId?.startsWith("auth0") && req.body.email) {
+                return res.status(401).json({message: `Cannot update email for ${req.user?.userId?.split("|")[0]}`})
             }
             user.name = req.body.name;
             user.email = req.body.email;
@@ -79,7 +78,7 @@ export class UserController {
             //     }
             // })
             // .then(async (response) => {
-            //     const newUser = await UserRepository.find({where: {auth0UserId: req.user?.sub}});
+            //     const newUser = await UserRepository.find({where: {auth0UserId: req.user?.userId}});
             //     res.status(200).json({message: "User updated successfully", data: newUser});
             // })
             // .catch((error: any)=> {
@@ -95,7 +94,7 @@ export class UserController {
     static async changePassword(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.userId}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -123,7 +122,7 @@ export class UserController {
         try {
             // const CDNController = new GenralCDNController();
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.userId}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -143,7 +142,7 @@ export class UserController {
     static async deleteUser(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
+            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.userId}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }

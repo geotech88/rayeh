@@ -8,7 +8,7 @@ import { conversionCurrency } from "../helpers/helpers";
 export class WalletController {
     static async createWallet(req: ExtendedRequest, res: Response) {
         try {
-            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.userId}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -24,11 +24,11 @@ export class WalletController {
 
     static async getWallet(req: ExtendedRequest, res: Response) {
         try {
-            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.userId}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
-            const wallet = await AppDataSource.getRepository(Wallet).findOne({where: {user: {auth0UserId: req.user?.sub}}});
+            const wallet = await AppDataSource.getRepository(Wallet).findOne({where: {user: {auth0UserId: req.user?.userId}}});
             if (!wallet) {
                 return res.status(404).json({message: "Wallet not found"});
             }
@@ -77,7 +77,7 @@ export class WalletController {
 
     static async deleteWallet(req: ExtendedRequest) {
         try {
-            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.sub}});
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.userId}});
             const wallet = await AppDataSource.
                     getRepository(Wallet).findOne(
                         {
