@@ -67,7 +67,7 @@ export class TripsController {
             }
             
             for (const trip of trips  as TripWithReviews[]) {
-                const userReviews = await AppDataSource.getRepository(Reviews).find({ where: { reviewedUser: {auth0UserId: trip.user.auth0UserId} } });
+                const userReviews = await AppDataSource.getRepository(Reviews).find({ relations: {user: true}, where: { reviewedUser: {auth0UserId: trip.user.auth0UserId} } });
                 trip['reviews'] = userReviews;
             }
             return res.status(200).json({message:'Trips retrieved succefully', data: trips});
