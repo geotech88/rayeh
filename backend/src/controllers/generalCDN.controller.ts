@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { nanoid } from 'nanoid';
+import { v4 as uuidv4 } from 'uuid';
 import { ExtendedRequest } from '../middlewares/Authentication';
 import { S3, Endpoint } from 'aws-sdk';
 
@@ -10,14 +10,16 @@ export class GenralCDNController {
     private bucketPublic: string;
 
     constructor() {
-        const spaceEndpoint = new Endpoint('nyc3.cdn.digitaloceanspaces.com')
+        // const spacesEndpoint = new Endpoint('https://rayeh-cdn-service.nyc3.digitaloceanspaces.com');
+
+        const spaceEndpoint = new Endpoint(process.env.DO_SPACES_ENDPOINT || "")
         this.s3 = new S3({
             endpoint: spaceEndpoint,
-            accessKeyId: 'dop_v1_f8919d43eb378ef5172bdba7c1ccba30bd08a03d756f8bd925ac3d054b149023',
-            secretAccessKey: 'G93dkl4k/d6ZE0juuG5BPHY28tAUf8lSZCEVh35w6Zg',
-            region: 'nyc3'
+            accessKeyId: process.env.DO_SPACES_KEY,
+            secretAccessKey: process.env.DO_SPACES_SECRET,
+            region: process.env.DO_SPACES_REGION
         });
-        this.bucketPublic = 'rayeh-cdn-service';
+        this.bucketPublic = process.env.DO_SPACES_PUBLIC_BUCKET || "";
     }
 
     public async uploadFile(req: ExtendedRequest): Promise<any> {
@@ -30,8 +32,7 @@ export class GenralCDNController {
             const ext = file_name.split('.').pop();
             const filename = file_name.split('.').slice(0, -1).join();
             const bucketName = this.bucketPublic;
-            const key = `${filename + nanoid() + '.' + ext}`;
-            console.log('bucketName:', bucketName);
+            const key = `${filename + uuidv4() + '.' + ext}`;
 
             const { Location } = await this.s3.upload({
                 Bucket: bucketName,

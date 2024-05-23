@@ -1,8 +1,6 @@
-import axios from 'axios';
 import { Request, Response, NextFunction } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { JwksClient } from 'jwks-rsa';
-import { getToken } from '../helpers/helpers';
 
 export interface ExtendedRequest extends Request {
   user?: JwtPayload;

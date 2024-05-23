@@ -4,6 +4,11 @@ import { AppDataSource } from "../config/ormconfig";
 import { Trips } from "../entity/Trips.entity";
 import { User } from "../entity/Users.entity";
 import { MoreThanOrEqual } from "typeorm";
+import { Reviews } from "../entity/Reviews.entity";
+
+interface TripWithReviews extends Trips {
+    reviews: Reviews[];
+}
 
 export class TripsController {
     static async createTrips(req: ExtendedRequest, res: Response) {
@@ -45,6 +50,9 @@ export class TripsController {
     static async getTripsBySearch(req: ExtendedRequest, res: Response) {
         try {
             const { from, to } = req.body;
+            if (!from || !to) {
+                return res.status(400).json({message: "missing parameters in body!"});
+            }
             const fromDate = new Date() as Date;
             const trips = await AppDataSource.getRepository(Trips).find({
                 relations: {user: true},
@@ -56,6 +64,11 @@ export class TripsController {
               });
             if (!trips) {
                 return res.status(404).json({message: "No Trips were found"});
+            }
+            
+            for (const trip of trips  as TripWithReviews[]) {
+                const userReviews = await AppDataSource.getRepository(Reviews).find({ where: { reviewedUser: {auth0UserId: trip.user.auth0UserId} } });
+                trip['reviews'] = userReviews;
             }
             return res.status(200).json({message:'Trips retrieved succefully', data: trips});
         } catch {
