@@ -1,23 +1,42 @@
 require('dotenv').config();
-const AWS = require('@aws-sdk/client-s3');
+const { S3 } = require('@aws-sdk/client-s3');
+const { S3Client, ListBucketsCommand , CreateBucketCommand } = require('@aws-sdk/client-s3');
+const { defaultProvider } = require('@aws-sdk/credential-provider-node');
 
 // Configure the endpoint for DigitalOcean Spaces
-const spacesEndpoint = new AWS.Endpoint('/rayeh-cdn-service.nyc3.cdn.digitaloceanspaces.com');
-const s3 = new AWS.S3({
+const spacesEndpoint = 'https://rayeh-cdn-service.nyc3.digitaloceanspaces.com';
+const s3Client = new S3Client({
   endpoint: spacesEndpoint,
-  accessKeyId: 'dop_v1_f8919d43eb378ef5172bdba7c1ccba30bd08a03d756f8bd925ac3d054b149023',
-  secretAccessKey: 'G93dkl4k/d6ZE0juuG5BPHY28tAUf8lSZCEVh35w6Zg',
-  region: 'nyc3'
+  region: 'nyc3',
+  credentials: {
+    accessKeyId: 'DO00JAMFCVFKP7LUBM7Q',
+    secretAccessKey: 'gfzp7L66dkf8cqtk8n6KvJzDUSIVOov6KG+kKFRZ/q0',
+  }
 });
 
 // Test: List all the buckets in your Spaces
-s3.listBuckets((err, data) => {
-  if (err) {
-    console.error('Error:', err);
-  } else {
+// s3.listBuckets((err, data) => {
+//   if (err) {
+//     console.error('Error:', err);
+//   } else {
+//     console.log('Buckets:', data.Buckets);
+//   }
+// });
+(async () => {
+  try {
+    const bucketName = 'test-bucket-' + Date.now();
+    const createBucketCommand = new CreateBucketCommand({ Bucket: bucketName });
+    await s3Client.send(createBucketCommand);
+    console.log(`Bucket ${bucketName} created successfully.`);
+
+    // List all buckets
+    const listBucketsCommand = new ListBucketsCommand({});
+    const data = await s3Client.send(listBucketsCommand);
     console.log('Buckets:', data.Buckets);
+  } catch (err) {
+    console.error('Error:', err);
   }
-});
+})();
 // require('dotenv').config();
 
 // const apiUrl = `https://dev-32micva8iqjojfue.us.auth0.com/userinfo`;
