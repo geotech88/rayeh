@@ -1,11 +1,12 @@
 require('dotenv').config();
 const { S3 } = require('@aws-sdk/client-s3');
-const { S3Client, ListBucketsCommand , CreateBucketCommand } = require('@aws-sdk/client-s3');
+const { S3Client, ListBucketsCommand , CreateBucketCommand, ListObjectsCommand } = require('@aws-sdk/client-s3');
 const { defaultProvider } = require('@aws-sdk/credential-provider-node');
 
 // Configure the endpoint for DigitalOcean Spaces
 const spacesEndpoint = 'https://rayeh-cdn-service.nyc3.digitaloceanspaces.com';
 const s3Client = new S3Client({
+  forcePathStyle: true,
   endpoint: spacesEndpoint,
   region: 'nyc3',
   credentials: {
@@ -24,15 +25,16 @@ const s3Client = new S3Client({
 // });
 (async () => {
   try {
-    const bucketName = 'test-bucket-' + Date.now();
-    const createBucketCommand = new CreateBucketCommand({ Bucket: bucketName });
-    await s3Client.send(createBucketCommand);
-    console.log(`Bucket ${bucketName} created successfully.`);
+    //to create a new bucket 
+    // const bucketName = 'test-bucket-' + Date.now();
+    // const createBucketCommand = new CreateBucketCommand({ Bucket: bucketName });
+    // await s3Client.send(createBucketCommand);
+    // console.log(`Bucket ${bucketName} created successfully.`);
 
-    // List all buckets
-    const listBucketsCommand = new ListBucketsCommand({});
-    const data = await s3Client.send(listBucketsCommand);
-    console.log('Buckets:', data.Buckets);
+    // List objects in the created bucket
+    const listObjectsCommand = new ListObjectsCommand({ Bucket: 'test-bucket-1716468505281' });
+    const data = await s3Client.send(listObjectsCommand);
+    console.log('Objects in Bucket:', data);
   } catch (err) {
     console.error('Error:', err);
   }
