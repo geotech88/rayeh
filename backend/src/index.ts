@@ -1,4 +1,3 @@
-require('dotenv').config();
 import express from 'express';
 // import cors from 'cors';
 import { auth } from 'express-openid-connect';
@@ -58,6 +57,20 @@ AppDataSource.initialize().then(async () => {
         messagesController.handleSocketEvents(socket, listSocket);
         
         socket.on('disconnect', () => {
+            const deleteByValue = (targetValue: string) => {
+                const keysToDelete: string[] = [];
+              
+                listSocket.forEach((value, key) => {
+                  if (value.id === targetValue) {
+                    keysToDelete.push(key);
+                  }
+                });
+              
+                keysToDelete.forEach(key => {
+                    listSocket.delete(key);
+                });
+            };
+            deleteByValue(socket.id);
             console.log('User disconnected:', socket.id);
         });
     });

@@ -19,7 +19,7 @@ const router = Router();
 const checkOnDatabase = async (req: ExtendedRequest , res: Response, next: NextFunction) => {
     try {
         const UserRepository = AppDataSource.getRepository(User);
-        const findUser = await UserRepository.findOne({where: {auth0UserId: req.user?.sub}});
+        const findUser = await UserRepository.findOne({where: {auth0UserId: req.user?.userId}});
         if (!findUser) {
             return res.status(403).json({message: 'the user is not authenticated in server'});
         }
