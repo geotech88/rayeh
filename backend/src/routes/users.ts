@@ -5,6 +5,7 @@ import { UserController } from '../controllers/user.controller';
 const usersRouter = Router();
 // const upload = multer();
 
+
 usersRouter.get('/api/users', UserController.getAllUsers);
 
 usersRouter.get('/api/users/me', UserController.getMyInfo);

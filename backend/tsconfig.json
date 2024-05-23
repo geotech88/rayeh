@@ -12,8 +12,12 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"  // Include this if you have custom type definitions
+    ]
   },
-  "include": ["src/**/*"],             // Include all .ts files in the src directory
+  "include": ["src/**/*","src/types/custom-types.d.ts","src/types/uuid-declarations.d.ts"],             // Include all .ts files in the src directory
   "exclude": ["node_modules", "dist"] 
 }
