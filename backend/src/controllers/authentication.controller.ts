@@ -5,7 +5,6 @@ import jwt from 'jsonwebtoken';
 import { ExtendedRequest } from "../middlewares/Authentication";
 import { Role } from "../entity/Roles.entity";
 import { WalletController } from "./wallet.controller";
-require('dotenv').config();
 
 export class AuthenticationController {
     static async addUser(req: ExtendedRequest, res: Response) {
@@ -39,9 +38,12 @@ export class AuthenticationController {
                 user.auth0UserId = auth0User.sub as string;
                 user.path = auth0User.picture as string;
 
-                let roleUser = new Role();
-                roleUser.name = 'user';
-                await roleRepository.save(roleUser);
+                let roleUser = await roleRepository.findOne({ where: { name: 'user' } });
+                if (!roleUser) {
+                    roleUser = new Role();
+                    roleUser.name = 'user';
+                    await roleRepository.save(roleUser);
+                }
 
                 user.role = roleUser;
                 await userRepository.save(user);
@@ -49,8 +51,8 @@ export class AuthenticationController {
             }
 
             const jwtToken = jwt.sign({ userId: auth0User.sub }, process.env.AUTH0_CLIENT_SECRET!, {
-                algorithm: 'RS256',
-                expiresIn: '24h'
+                algorithm: 'HS256',
+                expiresIn: '24h',
             });
 
             return res.status(200).json({ token: jwtToken });
