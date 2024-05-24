@@ -11,6 +11,7 @@ interface TripWithReviews extends Trips {
 }
 
 export class TripsController {
+
     static async createTrips(req: ExtendedRequest, res: Response) {
         try {
             const { from, to, date, description } = req.body;

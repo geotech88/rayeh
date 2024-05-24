@@ -8,6 +8,7 @@ import { Role } from "../entity/Roles.entity";
 import { GenralCDNController } from "./generalCDN.controller";
 
 export class UserController {
+
     static async getAllUsers(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
@@ -37,7 +38,6 @@ export class UserController {
             return res.status(500).json({error: error.message});
         }
     }
-
 
     static async updateUserInfo(req: ExtendedRequest, res: Response, next: NextFunction) {
         try {
@@ -116,20 +116,7 @@ export class UserController {
                 await AppDataSource.getRepository(Role).delete(role);
             }
             await UserRepository.delete(user.id);
-            // let options = {
-            //     method: 'DELETE',
-            //     url: `${process.env.AUTH0_DOMAIN}/api/v2/users/${user.auth0UserId}`,
-            //     headers: {
-            //         'content-type': 'application/json',
-            //         'authorization': `Bearer ${token.access_token}`
-            //     }
-            // };
 
-            // await axios.request(options).then((response) => {
-            //     console.log(response.data);
-            // }).catch((error: any)=> {
-            //     return res.status(500).json({error: error.message});
-            // })
             return res.status(200).json({message: "User deleted successfully"});
         } catch (error: any) {
             return res.status(500).json({error: error.message});
