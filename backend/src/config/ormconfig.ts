@@ -18,7 +18,7 @@ const config = {
         rejectUnauthorized: true,
         ca: fs.readFileSync('src/certs/ca.crt').toString(),
       }
-    : false,  
+    : false,
 };
 
 export default { config };

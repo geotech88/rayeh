@@ -11,12 +11,8 @@ export class AuthenticationController {
     static async addUser(req: ExtendedRequest, res: Response) {
         const authHeader = req.headers['authorization'] || "";
         const token = authHeader && authHeader.split(' ')[1];
-        const { role } = req.body;
         if (!token) {
             return res.status(401).json({ message: 'Access token is missing or invalid' });
-        }
-        if (!role) {
-            return res.status(400).json({message: 'Missing parameters in body!'});
         }
 
         try {
@@ -44,7 +40,7 @@ export class AuthenticationController {
                 user.path = auth0User.picture as string;
 
                 let roleUser = new Role();
-                roleUser.name = role;
+                roleUser.name = 'user';
                 await roleRepository.save(roleUser);
 
                 user.role = roleUser;

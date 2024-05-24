@@ -30,7 +30,6 @@ export class Trips {
     @OneToOne(() => Transaction, trip => trip.trip)
     transaction: Transaction;
     
-
     @CreateDateColumn()
     createdAt: Date;
 
