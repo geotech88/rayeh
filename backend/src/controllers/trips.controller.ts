@@ -5,9 +5,11 @@ import { Trips } from "../entity/Trips.entity";
 import { User } from "../entity/Users.entity";
 import { MoreThanOrEqual } from "typeorm";
 import { Reviews } from "../entity/Reviews.entity";
+import { calculateReviewsAverage } from "../helpers/helpers";
 
 interface TripWithReviews extends Trips {
     reviews: Reviews[];
+    average_rating: number;
 }
 
 export class TripsController {
@@ -69,7 +71,9 @@ export class TripsController {
             
             for (const trip of trips  as TripWithReviews[]) {
                 const userReviews = await AppDataSource.getRepository(Reviews).find({ relations: {user: true}, where: { reviewedUser: {auth0UserId: trip.user.auth0UserId} } });
+                const average_rating = calculateReviewsAverage(userReviews);
                 trip['reviews'] = userReviews;
+                trip['average_rating'] = average_rating;
             }
             return res.status(200).json({message:'Trips retrieved succefully', data: trips});
         } catch {
