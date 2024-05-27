@@ -57,8 +57,7 @@ export class AuthenticationController {
 
             return res.status(200).json({ token: jwtToken });
         } catch (error: any) {
-            console.error('Error authenticating user:', error);
-            return res.status(500).json({ error: 'Internal Server Error' });
+            return res.status(500).json({error: {message: error.message}});
         }
     };
 }

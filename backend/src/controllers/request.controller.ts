@@ -21,8 +21,8 @@ export class RequestController {
             request.message = message;
             await RequestRepository.save(request);
             return res.status(201).json({message: 'Request created successfully', data: request});
-        } catch {
-            return res.status(500).json({error: 'Something went wrong with databse'});
+        } catch (error: any) {
+            return res.status(500).json({error: {message: error.message}});
         }
     }
 
@@ -35,8 +35,8 @@ export class RequestController {
             }
             await RequestRepository.delete(request);
             return res.status(200).json({message: 'Request deleted successfully'});
-        } catch {
-            return res.status(500).json({error: 'Something went wrong with databse'});
+        } catch (error: any) {
+            return res.status(500).json({error: {message: error.message}});
         }
     }
 }

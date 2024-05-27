@@ -52,11 +52,11 @@ export class UserController {
                     return res.status(401).json({message: "Email already in use"});
                 }
             }
-            if (!req.user?.userId?.startsWith("auth0") && req.body.email) {
-                return res.status(401).json({message: `Cannot update email for ${req.user?.userId?.split("|")[0]}`})
-            }
             user.name = req.body.name;
-            user.email = req.body.email;
+            if (req.user?.userId?.startsWith("auth0")) {
+                // return res.status(401).json({message: `Cannot update email for ${req.user?.userId?.split("|")[0]}`})
+                user.email = req.body.email;
+            }
             user.path = req.body.picture;
             user.profession = req.body.profession;
             await UserRepository.save(user);

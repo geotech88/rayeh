@@ -9,7 +9,7 @@ const config = {
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE,
-    synchronize: true,
+    synchronize: false,
     logging: process.env.MODE === "DEV" ? false : false,
     entities: process.env.MODE === "DEV" ? ["src/entity/*.entity.ts"] : ["dist/entity/*.entity.js"],
     migrations: process.env.MODE === "DEV" ? ["src/migrations/*.ts"] : ["dist/migrations/*.js"],

@@ -44,9 +44,9 @@ export class GenralCDNController {
 
             return { file_url: Location };
 
-        } catch (error) {
+        } catch (error:any) {
             console.error('Error uploading file:', error);
-            return { message: 'Internal Server Error' };
+            return { message: error.message };
         }
     }
 
@@ -66,9 +66,9 @@ export class GenralCDNController {
             }).promise();
 
             return res.status(200).json({ message: 'File deleted successfully' });
-        } catch (error) {
+        } catch (error:any) {
             console.error('Error deleting file:', error);
-            return res.status(500).json({ error: 'Internal Server Error' });
+            return res.status(500).json({ error: error.message });
         }
     }
 }

@@ -3,6 +3,7 @@ import { Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGenerated
 import { User } from "./Users.entity";
 import { Tracker } from './Tracker.entity';
 import { Transaction } from './Transaction.entity';
+import { Reviews } from './Reviews.entity';
 
 @Entity({ name: 'Trips'})
 export class Trips {
@@ -29,6 +30,9 @@ export class Trips {
 
     @OneToOne(() => Transaction, trip => trip.trip)
     transaction: Transaction;
+
+    @OneToOne(() => Reviews, review => review.trip)
+    review: Reviews;
     
     @CreateDateColumn()
     createdAt: Date;
