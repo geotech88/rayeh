@@ -1,9 +1,10 @@
-import 'express'; // Ensure Express types are loaded first
+// custom-types.d.ts
+import { File } from 'multer';
 
 declare global {
   namespace Express {
     interface Request {
-      file?: Express.Multer.File; // Ensure this matches the import
+      file?: File; // This is optional; use file!: File; if it should be non-nullable
     }
   }
 }
