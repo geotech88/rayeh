@@ -4,11 +4,12 @@ import { AppDataSource } from "../config/ormconfig";
 import { Reviews } from "../entity/Reviews.entity";
 import { User } from "../entity/Users.entity";
 import { calculateReviewsAverage } from "../helpers/helpers";
+import { Trips } from "../entity/Trips.entity";
 
 export class ReviewsController {
     static async createReview(req: ExtendedRequest, res: Response) {
         try {
-            const { value, rating, reviewedUserId } = req.body;
+            const { value, rating, reviewedUserId, tripId } = req.body;
             const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.userId}});
             const reviewedUser = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: reviewedUserId}});
             if (!user || !reviewedUser) {
@@ -20,6 +21,7 @@ export class ReviewsController {
             review.value = value;
             review.rating = rating;
             review.reviewedUser = reviewedUser;
+            review.trip = await AppDataSource.getRepository(Trips).findOne({where: {id: tripId}}) as Trips;
             await ReviewRepository.save(review);
             return res.status(200).json({ message: "Review created", data: review });
         } catch (error: any) {

@@ -5,18 +5,13 @@ import jwt from 'jsonwebtoken';
 import { ExtendedRequest } from "../middlewares/Authentication";
 import { Role } from "../entity/Roles.entity";
 import { WalletController } from "./wallet.controller";
-require('dotenv').config();
 
 export class AuthenticationController {
     static async addUser(req: ExtendedRequest, res: Response) {
         const authHeader = req.headers['authorization'] || "";
         const token = authHeader && authHeader.split(' ')[1];
-        const { role } = req.body;
         if (!token) {
             return res.status(401).json({ message: 'Access token is missing or invalid' });
-        }
-        if (!role) {
-            return res.status(400).json({message: 'Missing parameters in body!'});
         }
 
         try {
@@ -43,9 +38,12 @@ export class AuthenticationController {
                 user.auth0UserId = auth0User.sub as string;
                 user.path = auth0User.picture as string;
 
-                let roleUser = new Role();
-                roleUser.name = role;
-                await roleRepository.save(roleUser);
+                let roleUser = await roleRepository.findOne({ where: { name: 'user' } });
+                if (!roleUser) {
+                    roleUser = new Role();
+                    roleUser.name = 'user';
+                    await roleRepository.save(roleUser);
+                }
 
                 user.role = roleUser;
                 await userRepository.save(user);
@@ -53,14 +51,13 @@ export class AuthenticationController {
             }
 
             const jwtToken = jwt.sign({ userId: auth0User.sub }, process.env.AUTH0_CLIENT_SECRET!, {
-                algorithm: 'RS256',
-                expiresIn: '24h'
+                algorithm: 'HS256',
+                expiresIn: '24h',
             });
 
             return res.status(200).json({ token: jwtToken });
         } catch (error: any) {
-            console.error('Error authenticating user:', error);
-            return res.status(500).json({ error: 'Internal Server Error' });
+            return res.status(500).json({error: {message: error.message}});
         }
     };
 }

@@ -5,8 +5,16 @@ import { Trips } from "../entity/Trips.entity";
 import { User } from "../entity/Users.entity";
 import { MoreThanOrEqual } from "typeorm";
 import { Reviews } from "../entity/Reviews.entity";
+import { calculateReviewsAverage } from "../helpers/helpers";
+import { Transaction } from "../entity/Transaction.entity";
 
 interface TripWithReviews extends Trips {
+    reviews: Reviews[];
+    average_rating: number;
+}
+
+interface TripWithTransaction extends Trips {
+    transaction: Transaction;
     reviews: Reviews[];
 }
 
@@ -20,6 +28,7 @@ export class TripsController {
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
+            const getAllTrips = await AppDataSource.getRepository(Trips).find({ relations: {user: true, review: true}, where: { user: {auth0UserId: req.user?.userId} }});
             const trips = new Trips();
             trips.from = from;
             trips.to = to;
@@ -27,10 +36,12 @@ export class TripsController {
             trips.description = description;
             trips.user = user;
             await TripsRepository.save(trips);
-            return res.status(201).json({message:'Trips updated successfully', data: trips});
+            const userReviews = await AppDataSource.getRepository(Reviews).find({ relations: {user: true}, where: { reviewedUser: {auth0UserId: req.user?.userId} } });
+            const average_rating = calculateReviewsAverage(userReviews);
+            return res.status(201).json({message:'Trips updated successfully', data: {new_trip: trips, previoous_trips: getAllTrips, average_rating: average_rating}});
 
-        } catch {
-            return res.status(500).json({error: 'Something went wrong with databse'});
+        } catch (error: any) {
+            return res.status(500).json({error: {message: error.message}});
         }
     }
 
@@ -42,8 +53,8 @@ export class TripsController {
                 return res.status(404).json({message: "No Trips were found"});
             }
             return res.status(200).json({message:'Trips received succefully', data: trips});
-        } catch {
-            return res.status(500).json({error: 'Something went wrong with databse'});
+        } catch (error: any) {
+            return res.status(500).json({error: {message: error.message}});
         }
     }
 
@@ -56,7 +67,7 @@ export class TripsController {
             }
             const fromDate = new Date() as Date;
             const trips = await AppDataSource.getRepository(Trips).find({
-                relations: {user: true},
+                relations: {user: true, review: true},
                 where: {
                   date: MoreThanOrEqual(fromDate),
                   to: to,
@@ -66,14 +77,16 @@ export class TripsController {
             if (!trips) {
                 return res.status(404).json({message: "No Trips were found"});
             }
+
             
             for (const trip of trips  as TripWithReviews[]) {
                 const userReviews = await AppDataSource.getRepository(Reviews).find({ relations: {user: true}, where: { reviewedUser: {auth0UserId: trip.user.auth0UserId} } });
-                trip['reviews'] = userReviews;
+                const average_rating = calculateReviewsAverage(userReviews);
+                trip['average_rating'] = average_rating;
             }
             return res.status(200).json({message:'Trips retrieved succefully', data: trips});
-        } catch {
-            return res.status(500).json({error: 'Something went wrong with databse'});
+        } catch (error: any) {
+            return res.status(500).json({error: {message: error.message}});
         }
     }
 
@@ -85,8 +98,8 @@ export class TripsController {
                 return res.status(404).json({message: "Trips not found"});
             }
             return res.status(200).json({message: 'Trips received succefully', data: trips});
-        } catch {
-            return res.status(500).json({error: 'Something went wrong with databse'});
+        } catch (error: any) {
+            return res.status(500).json({error: {message: error.message}});
         }
     }
 
@@ -94,13 +107,18 @@ export class TripsController {
     static async getTripsByUserId(req: ExtendedRequest, res: Response) {
         try {
             const TripsRepository = AppDataSource.getRepository(Trips);
-            const trips = await TripsRepository.find({where: {user: {auth0UserId: req.params.id}}});
+            const trips = await TripsRepository.find({relations: { user: true, review: true } ,where: {user: {auth0UserId: req.params.id}}});
             if (!trips) {
                 return res.status(404).json({message: "Trips not found"});
             }
-            return res.status(200).json({message: 'Trips received succefully', data: trips});
-        } catch {
-            return res.status(500).json({error: 'Something went wrong with databse'});
+            for (const trip of trips  as TripWithTransaction[]) {
+                trip['transaction'] = await AppDataSource.getRepository(Transaction).findOne({relations: {invoice: true}, where: { trip: {id: trip.id}}}) as Transaction;
+            }
+            const userReviews = await AppDataSource.getRepository(Reviews).find({ relations: {user: true}, where: { reviewedUser: {auth0UserId: req.user?.userId} } });
+            const average_rating = calculateReviewsAverage(userReviews);
+            return res.status(200).json({message: 'Trips received succefully', data: {trips, average_rating: average_rating}});
+        } catch (error: any) {
+            return res.status(500).json({error: {message: error.message}});
         }
     }
 
@@ -119,8 +137,8 @@ export class TripsController {
             await TripsRepository.save(trips);
             trips = await TripsRepository.findOne({where: {id: Number(req.params.id)}});
             return res.status(200).json({message:'Trips updated successfully', data: trips});
-        } catch {
-            return res.status(500).json({error: 'Something went wrong with databse'});
+        } catch (error: any) {
+            return res.status(500).json({error: {message: error.message}});
         }
     }
 
@@ -133,8 +151,8 @@ export class TripsController {
             }
             await TripsRepository.delete(trips);
             return res.status(200).json({message:'Trips deleted successfully'});
-        } catch {
-            return res.status(500).json({error: 'Something went wrong with databse'});
+        } catch (error: any) {
+            return res.status(500).json({error: {message: error.message}});
         }
     }
 }
