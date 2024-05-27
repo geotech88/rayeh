@@ -6,7 +6,7 @@
   "scripts": {
     "watch": "tsc -w",
     "clean": "rm -rf node_modules/ dist/",
-    "build": "npm run clean && tsc --extendedDiagnostics -p . --outDir",
+    "build": "npm run clean && tsc -p . --outDir",
     "start": "node dist/index.js",
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
