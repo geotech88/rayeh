@@ -16,7 +16,8 @@
     "typeRoots": [
       "./node_modules/@types",
       "./src/types"  // Include this if you have custom type definitions
-    ]
+    ],
+    "types": ["node", "express", "multer"], 
   },
   "include": ["src/**/*","src/types/custom-types.d.ts","src/types/uuid-declarations.d.ts"],             // Include all .ts files in the src directory
   "exclude": ["node_modules", "dist"] 
