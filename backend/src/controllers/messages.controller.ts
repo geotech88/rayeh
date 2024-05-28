@@ -3,9 +3,32 @@ import { messageDto, messageUsersDto } from "../dto/message.dto";
 import { Message } from "../entity/Messages.entity";
 import { Socket } from "socket.io";
 import { User } from "../entity/Users.entity";
+import { ExtendedRequest } from "../middlewares/Authentication";
+import { Response } from "express";
 
 export class MessagesController {
     private messageRepository = AppDataSource.getRepository(Message);
+
+    // static async createMessage(req: ExtendedRequest, res: Response){
+    //     try {
+    //         const {senderId, receiverId, message, type} = req.body;
+    //         const senderUser = await AppDataSource.getRepository(User).findOneBy({ auth0UserId: senderId });
+    //         const receiverUser = await AppDataSource.getRepository(User).findOneBy({ auth0UserId: receiverId });
+    //         if (!senderUser || !receiverUser) {
+    //             return res.status(500).send({message: 'User not found'});
+    //         }
+    //         console.log({senderId, receiverId, message, type})
+    //         const newMessage = new Message();
+    //         newMessage.senderUser = senderUser;
+    //         newMessage.receiverUser = receiverUser;
+    //         newMessage.message = message;
+    //         newMessage.type = type;
+    //         await AppDataSource.getRepository(Message).save(newMessage);
+    //         return res.status(200).send({message: 'message stored', data: newMessage});
+    //     } catch (error: any) {
+    //         return res.status(500).send({message: 'Failed to store message in database'});
+    //     }
+    // }
 
     async storeMessage(message: messageDto): Promise<Message> {
         try {

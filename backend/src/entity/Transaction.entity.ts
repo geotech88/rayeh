@@ -1,11 +1,11 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./Users.entity";
 import { Trips } from "./Trips.entity";
 import { Invoice } from "./Invoices.entity";
 
 @Entity({ name: 'Transaction'})
 export class Transaction {
-    @PrimaryColumn()
+    @PrimaryGeneratedColumn()
     id: number;
 
     @ManyToOne(() => User, user => user.transaction_sender)

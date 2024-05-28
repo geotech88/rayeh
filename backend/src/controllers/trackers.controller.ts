@@ -5,14 +5,19 @@ import { User } from "../entity/Users.entity";
 import { Tracker } from "../entity/Tracker.entity";
 import { Trips } from "../entity/Trips.entity";
 import { TransactionsController } from "./transactions.controller";
+import { Invoice } from "../entity/Invoices.entity";
 
 export class TrackersController {
     static async createTracker(req: ExtendedRequest, res: Response) {
         try {
-            const { receiverUserId, senderUserId, name, date, timing, tripId } = req.body;
-            const receiverUser = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: receiverUserId}});
-            const senderUser = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: senderUserId}});
+            const { receiverId, senderId, name, date, timing, tripId, invoiceId } = req.body;
+            const receiverUser = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: receiverId}});
+            const senderUser = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: senderId}});
             const trip = await AppDataSource.getRepository(Trips).findOne({where: {id: tripId}});
+            let invoice;
+            if (invoiceId) {
+                invoice = await AppDataSource.getRepository(Invoice).findOne({where: {id: invoiceId}})
+            }
             if (!receiverUser || !senderUser) {
                 return res.status(404).json({message: "User not found"});
             }
@@ -24,11 +29,11 @@ export class TrackersController {
             tracker.receiverUser = receiverUser;
             tracker.senderUser = senderUser;
             tracker.name = name;
-            tracker.date = date;
+            tracker.date = new Date(date);
             tracker.timing = timing;
             tracker.trip = trip;
             await TrackerRepository.save(tracker);
-            await TransactionsController.createTransaction(req, tracker);
+            await TransactionsController.createTransaction(req, tracker, invoice as Invoice);
             return res.status(201).json({message:'Tracker updated successfully', data: tracker});
         } catch (error:any){
             return res.status(500).json({error: error.message});
