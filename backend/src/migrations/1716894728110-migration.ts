@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class Migration1716813185878 implements MigrationInterface {
-    name = 'Migration1716813185878'
+export class Migration1716894728110 implements MigrationInterface {
+    name = 'Migration1716894728110'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`ALTER TABLE "Reviews" ADD "tripId" integer`);
