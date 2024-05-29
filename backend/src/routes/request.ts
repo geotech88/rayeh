@@ -1,4 +1,4 @@
-import { Response, Router, NextFunction } from 'express';
+import { Router } from 'express';
 import { RequestController } from '../controllers/request.controller';
 
 const requestRouter = Router();

@@ -7,18 +7,21 @@ import { Message } from "../entity/Messages.entity";
 export class RequestController {
     static async createRequest(req: ExtendedRequest, res: Response) {
         try {
-            const { from, to, price, cost, messageId } = req.body;
+            const { from, to, price, cost, date, messageId } = req.body;
+            console.log('the informations:',from, to, price, cost, messageId )
             const RequestRepository = AppDataSource.getRepository(Request);
             const message = await AppDataSource.getRepository(Message).findOne({where: {id: messageId}});
             if (!message) {
                 return res.status(404).json({message: "Message not found"});
             }
+            console.log('the message:', message)
             const request = new Request();
             request.from = from;
             request.to = to;
             request.price = price;
             request.cost = cost;
             request.message = message;
+            request.date = new Date(date);
             await RequestRepository.save(request);
             return res.status(201).json({message: 'Request created successfully', data: request});
         } catch (error: any) {

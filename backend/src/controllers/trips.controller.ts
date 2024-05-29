@@ -61,7 +61,7 @@ export class TripsController {
     //add user in response, rating, time remaining for the trip
     static async getTripsBySearch(req: ExtendedRequest, res: Response) {
         try {
-            const { from, to } = req.body;
+            const { from, to } = req.query;
             if (!from || !to) {
                 return res.status(400).json({message: "missing parameters in body!"});
             }
@@ -70,8 +70,8 @@ export class TripsController {
                 relations: {user: true, review: true},
                 where: {
                   date: MoreThanOrEqual(fromDate),
-                  to: to,
-                  from: from
+                  to: to as string,
+                  from: from as string
                 }
               });
             if (!trips) {
