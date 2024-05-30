@@ -54,8 +54,8 @@ AppDataSource.initialize().then(async () => {
         socket.on('user_identification', (userId: string) => {
             console.log('user id:', userId);
             //check if the userId is already set with this socket id
-            listSocket.set(userId, socket);
-            console.log(listSocket);
+            // listSocket.set(userId, socket);
+            messagesController.storeSocketMap(userId, socket);
         });
 
         messagesController.handleSocketEvents(socket, listSocket);

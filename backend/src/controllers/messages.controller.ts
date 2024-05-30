@@ -7,7 +7,7 @@ import { ExtendedRequest } from "../middlewares/Authentication";
 import { Response } from "express";
 
 export class MessagesController {
-
+    private listSocket: Map<string, Socket> = new Map<string, Socket>();
     // static async createMessage(req: ExtendedRequest, res: Response){
     //     try {
     //         const {senderId, receiverId, message, type} = req.body;
@@ -28,6 +28,11 @@ export class MessagesController {
     //         return res.status(500).send({message: 'Failed to store message in database'});
     //     }
     // }
+
+    async storeSocketMap(userId:string, socket: Socket) {
+        this.listSocket.set(String(userId), socket);
+        console.log('counter:', this.listSocket.size);
+    }
 
     async storeMessage(message: messageDto): Promise<Message> {
         try {
@@ -97,18 +102,19 @@ export class MessagesController {
 
     handleSocketEvents(socket: Socket, listSocket: Map<string, Socket>) {
         socket.on('sendMessage', async (data: messageDto) => {
-            try {
-                const newMessage = await this.storeMessage(data);
-                listSocket.get(data.receiverId)?.emit('newMessage', newMessage);
-            } catch (error: any) {
-                socket.emit('error', error.message);
+            const newMessage = await this.storeMessage(data);
+            const receiverSocket = this.listSocket.get(String(newMessage.receiverUser.auth0UserId));
+            if (receiverSocket) {
+                receiverSocket.emit('newMessage', newMessage);
+            } else {
+                socket.emit('error', `No socket found for userId: ${newMessage.receiverUser.auth0UserId}`);
             }
         });
 
         socket.on('getMessages', async (data: messageUsersDto) => {
             try {
                 const messages = await this.getAllMessages(data);
-                listSocket.get(data.user2Id)?.emit('retrieveMessages', messages);
+                socket?.emit('retrieveMessages', messages);
             } catch (error: any) {
                 socket.emit('error', error.message);
             }
