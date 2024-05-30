@@ -7,7 +7,6 @@ import { ExtendedRequest } from "../middlewares/Authentication";
 import { Response } from "express";
 
 export class MessagesController {
-    private messageRepository = AppDataSource.getRepository(Message);
 
     // static async createMessage(req: ExtendedRequest, res: Response){
     //     try {
@@ -42,7 +41,7 @@ export class MessagesController {
             newMessage.receiverUser = receiverUser;
             newMessage.message = message.message;
             newMessage.type = message.type;
-            await this.messageRepository.save(newMessage);
+            await AppDataSource.getRepository(Message).save(newMessage);
             return newMessage;
         } catch (error: any) {
             throw new Error('Failed to store message in database');
@@ -62,14 +61,14 @@ export class MessagesController {
                     createdAt: 'ASC' as const,
                 }
             };
-            return await this.messageRepository.find(queryCriteria);
+            return await AppDataSource.getRepository(Message).find(queryCriteria);
         } catch (error: any) {
             throw new Error('Failed to retrieve messages from database');
         }
     }
 
     async getAllDiscussions(data: any) {
-        const messages = await this.messageRepository.find({
+        const messages = await AppDataSource.getRepository(Message).find({
             where: [
                 { senderUser: { auth0UserId: data.userId } },
                 { receiverUser: { auth0UserId: data.userId } }

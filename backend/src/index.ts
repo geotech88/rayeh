@@ -15,7 +15,8 @@ AppDataSource.initialize().then(async () => {
         cors: {
             origin: '*',
             methods: ['GET', 'POST'],
-        }
+            credentials: true
+        },
     });
     app.use(express.json());
 
@@ -51,7 +52,10 @@ AppDataSource.initialize().then(async () => {
         console.log('User connected:', socket.id);
 
         socket.on('user_identification', (userId: string) => {
+            console.log('user id:', userId);
+            //check if the userId is already set with this socket id
             listSocket.set(userId, socket);
+            console.log(listSocket);
         });
 
         messagesController.handleSocketEvents(socket, listSocket);
