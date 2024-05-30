@@ -5,6 +5,7 @@ import { Socket } from "socket.io";
 import { User } from "../entity/Users.entity";
 import { ExtendedRequest } from "../middlewares/Authentication";
 import { Response } from "express";
+import { Request } from "../entity/Request.entity";
 
 export class MessagesController {
     private listSocket: Map<string, Socket> = new Map<string, Socket>();
@@ -30,8 +31,26 @@ export class MessagesController {
     // }
 
     async storeSocketMap(userId:string, socket: Socket) {
-        this.listSocket.set(String(userId), socket);
-        console.log('counter:', this.listSocket.size);
+        if (!this.listSocket.has(String(userId))) {
+            this.listSocket.set(String(userId), socket);
+        }
+    }
+
+    async deleteSocketMap(socketId: string) {
+        this.listSocket.forEach((value, key) => {
+            if (value.id === socketId) {
+                this.listSocket.delete(key);
+                console.log(`Deleted socket with key: ${key}`);
+            }
+        });
+    }
+
+    async retrieveRequest(requestId: number) {
+        const request = await AppDataSource.getRepository(Request).findOne({where: {id : requestId}});
+        if (!request) {
+            return [];
+        }
+        return request;
     }
 
     async storeMessage(message: messageDto): Promise<Message> {
@@ -100,21 +119,45 @@ export class MessagesController {
     }
 
 
-    handleSocketEvents(socket: Socket, listSocket: Map<string, Socket>) {
+    handleSocketEvents(socket: Socket) {
+
         socket.on('sendMessage', async (data: messageDto) => {
-            const newMessage = await this.storeMessage(data);
-            const receiverSocket = this.listSocket.get(String(newMessage.receiverUser.auth0UserId));
-            if (receiverSocket) {
-                receiverSocket.emit('newMessage', newMessage);
-            } else {
-                socket.emit('error', `No socket found for userId: ${newMessage.receiverUser.auth0UserId}`);
+            try {
+                if (!data.message || !data.receiverId || !data.senderId || !data.type) {
+                    throw new Error('missing some data!');
+                }
+                const newMessage = await this.storeMessage(data);
+                const receiverSocket = this.listSocket.get(String(newMessage.receiverUser.auth0UserId));
+                let result = {};
+                if (receiverSocket) {
+                    if (newMessage.type.toLowerCase() === 'request') {
+                        const request = await this.retrieveRequest(Number(newMessage.message));
+                        result = {newMessage, request};
+                    } else {
+                        result = {newMessage};
+                    }
+                    receiverSocket.emit('newMessage', result);
+                }
+            } catch (error: any) {
+                socket.emit('error', error.message);
             }
         });
 
         socket.on('getMessages', async (data: messageUsersDto) => {
             try {
+                if (!data.user1Id || !data.user2Id) {
+                    throw new Error('missing some data!');
+                }
                 const messages = await this.getAllMessages(data);
-                socket?.emit('retrieveMessages', messages);
+                const messagesWithRequests = await Promise.all(messages.map(async (message) => {
+                    if (message.type.toLowerCase() === 'request') {
+                        const requestId = Number(message.message);
+                        const request = await this.retrieveRequest(requestId);
+                        return { ...message, request };
+                    }
+                    return message;
+                }));
+                socket?.emit('retrieveMessages', messagesWithRequests);
             } catch (error: any) {
                 socket.emit('error', error.message);
             }
@@ -122,6 +165,9 @@ export class MessagesController {
 
         socket.on('discussions', async (data: any) => {
             try {
+                if (!data.userId) {
+                    throw new Error('missing userId data!');
+                }
                 const discussions = await this.getAllDiscussions(data);
                 socket.emit('retrieveDiscussions', discussions);
             } catch (error: any) {
