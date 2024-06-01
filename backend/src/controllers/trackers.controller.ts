@@ -40,6 +40,24 @@ export class TrackersController {
         }
     }
 
+    static async getTrackersBetweenUsers(req:ExtendedRequest, res: Response) {
+        try {
+            const { receiverId, senderId } = req.query;
+            const User1 = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: String(receiverId)}});
+            const User2 = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: String(senderId)}});
+            if (!User1 || !User2) {
+                return res.status(400).json({message: "User not found!"});
+            }
+            const trackers = await AppDataSource.getRepository(Tracker).find({where: {receiverUser:{id: User1.id}, senderUser: {id: User2.id}}});
+            if (!trackers.length) {
+                return res.status(200).json({message: "No trackers found", data: []});
+            }
+            return res.status(200).json({message: "Trackers retrieved succesfully!", data: trackers});
+        } catch (error: any) {
+
+        }
+    }
+
     static async getTrackersByUserId(req: ExtendedRequest, res: Response) {
         try {
             const { userId } = req.params
@@ -52,7 +70,7 @@ export class TrackersController {
             if (!trackers.length) {
                 return res.status(404).json({message: "No trackers were found"});
             }
-            return res.status(200).json({message:'Trackers received succefully', data: trackers});
+            return res.status(200).json({message:'Trackers retrieved succesfully', data: trackers});
         } catch (error:any) {
             return res.status(500).json({error: error.message});
         }
@@ -65,7 +83,7 @@ export class TrackersController {
             if (!trackers.length) {
                 return res.status(404).json({message: "No trackers were found"});
             }
-            return res.status(200).json({message:'Trackers received succefully', data: trackers});
+            return res.status(200).json({message:'Trackers retrieved succesfully', data: trackers});
         } catch (error:any){
             return res.status(500).json({error: error.message});
         }

@@ -24,6 +24,9 @@ export class Tracker {
     @Column({nullable: false})
     timing: string
 
+    @Column({nullable: true})
+    place: string;
+
     @OneToOne(() => Trips, trip => trip.tracker)
     @JoinColumn()
     trip: Trips;

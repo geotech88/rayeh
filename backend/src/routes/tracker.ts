@@ -7,6 +7,8 @@ trackerRouter.post('/api/tracker/createtracker', TrackersController.createTracke
 
 trackerRouter.get('/api/tracker/getalltrackers', TrackersController.getAllTrackers);
 
+trackerRouter.get('/api/tracker/gettrackersusers', TrackersController.getTrackersBetweenUsers);
+
 trackerRouter.get('/api/tracker/gettrackers/:id', TrackersController.getTrackersByUserId);
 
 trackerRouter.patch('/api/tracker/update/:id', TrackersController.updateTracker)
