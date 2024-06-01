@@ -22,7 +22,7 @@ export class UserController {
     static async getMyInfo(req: ExtendedRequest, res: Response) {
         try {
             const UserRepository = AppDataSource.getRepository(User);
-            const user = await UserRepository.findOne({where: {auth0UserId: req.user?.userId}});
+            const user = await UserRepository.findOne({relations: {role: true}, where: {auth0UserId: req.user?.userId}});
             return res.status(200).json({ message:"User fetched successfully", data: user});
         } catch (error: any) {
             return res.status(500).json({error: error.message});
