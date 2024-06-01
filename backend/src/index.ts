@@ -38,7 +38,6 @@ AppDataSource.initialize().then(async () => {
     app.use(authRouter);
 
     const messagesController = new MessagesController();
-    const listSocket: Map<string, Socket> = new Map<string, Socket>();
 
     // io.use((socket: Socket, next: any) => {
     //     const request = socket.request;
@@ -52,29 +51,17 @@ AppDataSource.initialize().then(async () => {
         console.log('User connected:', socket.id);
 
         socket.on('user_identification', (userId: string) => {
-            console.log('user id:', userId);
-            //check if the userId is already set with this socket id
-            // listSocket.set(userId, socket);
-            messagesController.storeSocketMap(userId, socket);
+            if (typeof(userId) != "string") {
+                socket.emit('error', "error in the data received!");
+            } else {
+                messagesController.storeSocketMap(userId, socket);
+            }
         });
 
-        messagesController.handleSocketEvents(socket, listSocket);
+        messagesController.handleSocketEvents(socket);
         
         socket.on('disconnect', () => {
-            const deleteByValue = (targetValue: string) => {
-                const keysToDelete: string[] = [];
-              
-                listSocket.forEach((value, key) => {
-                  if (value.id === targetValue) {
-                    keysToDelete.push(key);
-                  }
-                });
-              
-                keysToDelete.forEach(key => {
-                    listSocket.delete(key);
-                });
-            };
-            deleteByValue(socket.id);
+            messagesController.deleteSocketMap(socket.id);
             console.log('User disconnected:', socket.id);
         });
     });

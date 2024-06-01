@@ -38,7 +38,7 @@ export class TripsController {
             await TripsRepository.save(trips);
             const userReviews = await AppDataSource.getRepository(Reviews).find({ relations: {user: true}, where: { reviewedUser: {auth0UserId: req.user?.userId} } });
             const average_rating = calculateReviewsAverage(userReviews);
-            return res.status(201).json({message:'Trips updated successfully', data: {new_trip: trips, previoous_trips: getAllTrips, average_rating: average_rating}});
+            return res.status(201).json({message:'Trips updated successfully', data: {new_trip: trips, previous_trips: getAllTrips, average_rating: average_rating}});
 
         } catch (error: any) {
             return res.status(500).json({error: {message: error.message}});
