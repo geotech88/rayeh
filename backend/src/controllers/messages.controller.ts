@@ -34,6 +34,7 @@ export class MessagesController {
         if (!this.listSocket.has(String(userId))) {
             this.listSocket.set(String(userId), socket);
         }
+        console.log('size of list socket:', this.listSocket.size);
     }
 
     async deleteSocketMap(socketId: string) {
@@ -136,6 +137,7 @@ export class MessagesController {
                     } else {
                         result = {newMessage};
                     }
+                    console.log('send message:', result);
                     receiverSocket.emit('newMessage', result);
                 }
             } catch (error: any) {

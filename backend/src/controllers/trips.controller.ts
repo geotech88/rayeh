@@ -36,7 +36,7 @@ export class TripsController {
             trips.description = description;
             trips.user = user;
             await TripsRepository.save(trips);
-            const userReviews = await AppDataSource.getRepository(Reviews).find({ relations: {user: true}, where: { reviewedUser: {auth0UserId: req.user?.userId} } });
+            const userReviews = await AppDataSource.getRepository(Reviews).find({ relations: {user: true}, where: { reviewedUser: {auth0UserId: req.user?.userId} } }); //shows previous_trips 5
             const average_rating = calculateReviewsAverage(userReviews);
             return res.status(201).json({message:'Trips updated successfully', data: {new_trip: trips, previous_trips: getAllTrips, average_rating: average_rating}});
 
@@ -97,7 +97,7 @@ export class TripsController {
             if (!trips) {
                 return res.status(404).json({message: "Trips not found"});
             }
-            return res.status(200).json({message: 'Trips received succefully', data: trips});
+            return res.status(200).json({message: 'Trips received succefully', data: trips});// limits on 14 trip
         } catch (error: any) {
             return res.status(500).json({error: {message: error.message}});
         }
