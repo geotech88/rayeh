@@ -18,24 +18,26 @@ export async function alterColumns(): Promise<void> {
       return result[0].exists;
     };
 
+    await queryRunner.query(`ALTER TABLE "Tracker" ADD COLUMN "place" VARCHAR(255);`);
+    console.log(`Added column: place in table: Tracker`);
     // Add foreign key constraint between Reviews and Trips
-    await queryRunner.query(`
-      ALTER TABLE "Reviews" 
-      ADD CONSTRAINT "FK_1b5cb7633ec0e7c58dd841b7689" 
-      FOREIGN KEY ("tripId") 
-      REFERENCES "Trips"("id") 
-      ON DELETE NO ACTION 
-      ON UPDATE NO ACTION;
-    `);
-    console.log(`Added foreign key constraint between Reviews and Trips`);
+    // await queryRunner.query(`
+    //   ALTER TABLE "Reviews" 
+    //   ADD CONSTRAINT "FK_1b5cb7633ec0e7c58dd841b7689" 
+    //   FOREIGN KEY ("tripId") 
+    //   REFERENCES "Trips"("id") 
+    //   ON DELETE NO ACTION 
+    //   ON UPDATE NO ACTION;
+    // `);
+    // console.log(`Added foreign key constraint between Reviews and Trips`);
 
     // Modify transaction id to be auto-increment
-    await queryRunner.query(`
-      ALTER TABLE "Transactions" 
-      ALTER COLUMN "id" 
-      SET DEFAULT nextval('"Transactions_id_seq"'::regclass);
-    `);
-    console.log(`Modified Transactions id to be auto-increment`);
+    // await queryRunner.query(`
+    //   ALTER TABLE "Transactions" 
+    //   ALTER COLUMN "id" 
+    //   SET DEFAULT nextval('"Transactions_id_seq"'::regclass);
+    // `);
+    // console.log(`Modified Transactions id to be auto-increment`);
 
     // Add new column to Tracker table
     if (!(await checkColumnExistence('Tracker', 'place'))) {
