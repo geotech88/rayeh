@@ -5,6 +5,10 @@ const walletRouter = Router();
 
 walletRouter.get('/api/wallet/info', WalletController.getWallet);
 
+walletRouter.post('/api/wallet/payment', WalletController.payment);
+
+walletRouter.post('/api/wallet/payment/callback', WalletController.paymentCallback);
+
 walletRouter.patch('/api/wallet/updatebalance/:id', WalletController.updateWalletBalance);
 
 walletRouter.patch('/api/wallet/updatecurrency/:id', WalletController.updateWalletCurrency);

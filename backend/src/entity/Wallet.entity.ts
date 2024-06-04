@@ -15,7 +15,7 @@ export class Wallet {
     @Column({type: 'decimal', precision: 10, scale: 2, default: 0.00})
     balance: number;
 
-    @Column({default: 'USD'})
+    @Column({default: 'SAR'})
     currency: string;
 
     @CreateDateColumn()

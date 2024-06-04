@@ -77,7 +77,7 @@ export class MessagesController {
 
         try {
             const queryCriteria = {
-                relation: {senderUser: true, receiverUser: true},
+                relations: {senderUser: true, receiverUser: true},
                 where: [
                     {senderUser: {auth0UserId: messageUsers.user1Id}, receiverUser: {auth0UserId: messageUsers.user2Id}},
                     {senderUser: {auth0UserId: messageUsers.user2Id}, receiverUser: {auth0UserId: messageUsers.user1Id}},

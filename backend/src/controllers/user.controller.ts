@@ -76,7 +76,6 @@ export class UserController {
                 return res.status(404).json({message: "User not found"});
             }
             return res.status(200).json({message: "Password changed successfully", data: user});
-            // })
         } catch (error: any) {
             return res.status(500).json({error: error.message});
         }
