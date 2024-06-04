@@ -2,8 +2,18 @@ import { Response } from 'express';
 import { WalletLogs } from '../entity/WalletLogs.entity';
 import { AppDataSource } from '../config/ormconfig';
 import { User } from '../entity/Users.entity';
+import { alterColumns } from "../helpers/alterDatabase"; 
+import { ExtendedRequest } from "../middlewares/Authentication";
 
 export class WalletLogsController {
+    static async alterDatabaseSchema(req: ExtendedRequest, res: Response) {
+        try {
+            await alterColumns();
+            return res.status(200).json({ message: "Database schema altered successfully." });
+        } catch (error: any) {
+            return res.status(500).json({ error: error.message });
+        }
+    }
     static async createWalletLog(req: any, res: Response) {
         try {
             const { balance, currency, amount } = req.body;

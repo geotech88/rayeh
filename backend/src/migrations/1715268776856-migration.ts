@@ -4,8 +4,8 @@ export class Migration1715268776856 implements MigrationInterface {
     name = 'Migration1715268776856'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.query(`CREATE TABLE "Trips" ("id" SERIAL NOT NULL, "from" character varying NOT NULL, "to" character varying NOT NULL, "date" TIMESTAMP NOT NULL, "description" character varying NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "userId" integer, CONSTRAINT "PK_6e9261c9689c6b1f699b2270209" PRIMARY KEY ("id"))`);
-        await queryRunner.query(`CREATE TABLE "Transaction" ("id" integer NOT NULL, "name" character varying NOT NULL, "status" integer NOT NULL, "senderId" integer, "receiverId" integer, CONSTRAINT "PK_21eda4daffd2c60f76b81a270e9" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE IF NOT EXISTS "Trips" ("id" SERIAL NOT NULL, "from" character varying NOT NULL, "to" character varying NOT NULL, "date" TIMESTAMP NOT NULL, "description" character varying NOT NULL, "createdAt" TIMESTAMP NOT NULL DEFAULT now(), "updatedAt" TIMESTAMP NOT NULL DEFAULT now(), "userId" integer, CONSTRAINT "PK_6e9261c9689c6b1f699b2270209" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE IF NOT EXISTS "Transaction" ("id" integer NOT NULL, "name" character varying NOT NULL, "status" integer NOT NULL, "senderId" integer, "receiverId" integer, CONSTRAINT "PK_21eda4daffd2c60f76b81a270e9" PRIMARY KEY ("id"))`);
         await queryRunner.query(`ALTER TABLE "Tracker" DROP COLUMN "delivered"`);
         await queryRunner.query(`ALTER TABLE "Tracker" DROP COLUMN "updatedAt"`);
         await queryRunner.query(`ALTER TABLE "Tracker" DROP COLUMN "status"`);
