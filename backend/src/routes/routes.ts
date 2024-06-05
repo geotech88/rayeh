@@ -36,7 +36,8 @@ router.get('/', (req, res) => {
 
 router.use('/api/admin', authorized(['admin']));
 
-router.use('/api', checkIsLoggedIn, 
+router.use('/api',
+        checkIsLoggedIn, 
         checkOnDatabase, //temporary solution, until https domain is set to use the callback instead
         authorized(['user', 'admin']));
 

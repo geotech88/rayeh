@@ -28,7 +28,7 @@ export class TripsController {
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
-            const getAllTrips = await AppDataSource.getRepository(Trips).find({ relations: {user: true, review: true}, where: { user: {auth0UserId: req.user?.userId} }});
+            const getAllTrips = await AppDataSource.getRepository(Trips).find({ relations: {user: true, review: true}, where: { user: {auth0UserId: req.user?.userId} },take: 5});
             const trips = new Trips();
             trips.from = from;
             trips.to = to;
@@ -48,7 +48,7 @@ export class TripsController {
     static async getAllTrips(req: ExtendedRequest, res: Response) {
         try {
             const TripsRepository = AppDataSource.getRepository(Trips);
-            const trips = await TripsRepository.find();
+            const trips = await TripsRepository.find({take: 15});
             if (!trips) {
                 return res.status(404).json({message: "No Trips were found"});
             }
@@ -72,7 +72,8 @@ export class TripsController {
                   date: MoreThanOrEqual(fromDate),
                   to: to as string,
                   from: from as string
-                }
+                },
+                take: 14
               });
             if (!trips) {
                 return res.status(404).json({message: "No Trips were found"});
@@ -97,7 +98,7 @@ export class TripsController {
             if (!trips) {
                 return res.status(404).json({message: "Trips not found"});
             }
-            return res.status(200).json({message: 'Trips received succefully', data: trips});// limits on 14 trip
+            return res.status(200).json({message: 'Trips received succefully', data: trips});
         } catch (error: any) {
             return res.status(500).json({error: {message: error.message}});
         }
@@ -107,7 +108,7 @@ export class TripsController {
     static async getTripsByUserId(req: ExtendedRequest, res: Response) {
         try {
             const TripsRepository = AppDataSource.getRepository(Trips);
-            const trips = await TripsRepository.find({relations: { user: true, review: true } ,where: {user: {auth0UserId: req.params.id}}});
+            const trips = await TripsRepository.find({relations: { user: true, review: true } ,where: {user: {auth0UserId: req.params.id}}, take: 14});
             if (!trips) {
                 return res.status(404).json({message: "Trips not found"});
             }
