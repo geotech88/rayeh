@@ -7,7 +7,8 @@ import { conversionCurrency } from "../helpers/helpers";
 require('dotenv').config();
 
 const HYPERPAY_URL = process.env.HYPERPAY_URL;
-const HYPERPAY_ENTITY_ID = process.env.HYPERPAY_ENTITY_VISA_MASTERCARD; //need to check which entity id
+const HYPERPAY_ENTITY_VISA_MASTERCARD_ID = process.env.HYPERPAY_ENTITY_VISA_MASTERCARD;
+const HYPERPAY_ENTITY_MADA_ID = process.env.HYPERPAY_ENTITY_MADA;
 const HYPERPAY_AUTH_TOKEN = process.env.HYERPAY_AUTH_TOKEN;
 
 export class WalletController {
@@ -29,11 +30,24 @@ export class WalletController {
 
     static async payment(req: ExtendedRequest, res: Response) {
         try {
-            const { amount, currency } = req.body;
+            const { amount, currency, paymentType } = req.body;
             const WalletRepository = AppDataSource.getRepository(Wallet);
             const wallet = await WalletRepository.findOne({where: { user: { auth0UserId: req.user?.userId }}});
+            if (!amount || !currency || !paymentType) {
+                return res.status(400).json({message: "Missing parameters in the request!"});
+            }
+            console.log('the payment method:', HYPERPAY_ENTITY_MADA_ID )
             if (!wallet) {
                 return res.status(404).json({message: 'Wallet not found'});
+            }
+            let entityId = '';
+
+            if (paymentType === 'VISA_MASTERCARD') {
+                entityId = HYPERPAY_ENTITY_VISA_MASTERCARD_ID || "";
+            } else if (paymentType === 'MADA') {
+                entityId = HYPERPAY_ENTITY_MADA_ID || "";
+            } else {
+                return res.status(400).json({ message: 'Invalid payment type' });
             }
             const response = await fetch(`${HYPERPAY_URL}/v1/checkouts`, {
                 method: 'POST',
@@ -42,7 +56,7 @@ export class WalletController {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
                 body: new URLSearchParams({
-                    entityId: HYPERPAY_ENTITY_ID || "",
+                    entityId: entityId,
                     amount: amount.toString(),
                     currency: currency,
                     paymentType: 'DB'
@@ -53,7 +67,7 @@ export class WalletController {
             if (!response.ok) {
                 return res.status(response.status).json({ message: data.result });
             }
-            console.log('the response from hyperpay:', data);
+
             const checkoutId = data.id;
 
             return res.json({
@@ -65,10 +79,50 @@ export class WalletController {
         }
     }
 
-    static async paymentCallback(req: ExtendedRequest, res: Response) {
+    static async paymentCallbackVisaMasterCard(req: ExtendedRequest, res: Response) {
         try {
             const { id, resourcePath } = req.body;
-            const response = await fetch(`${HYPERPAY_URL}${resourcePath}?entityId=${HYPERPAY_ENTITY_ID}`, {
+            const response = await fetch(`${HYPERPAY_URL}${resourcePath}?entityId=${HYPERPAY_ENTITY_VISA_MASTERCARD_ID}`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${HYPERPAY_AUTH_TOKEN}`
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                return res.status(response.status).json({ message: data.result.description });
+            }
+
+            const paymentStatus = data.result.code;
+
+            if (paymentStatus === '000.000.000' || paymentStatus === '000.000.100') {
+                const walletRepository = AppDataSource.getRepository(Wallet);
+                const wallet = await walletRepository.findOne({ where: { user: { auth0UserId: id } } });
+
+                if (!wallet) {
+                    return res.status(404).json({ message: 'Wallet not found' });
+                }
+
+                wallet.balance += parseFloat(data.amount);
+                await walletRepository.save(wallet);
+
+                return res.json({ message: 'Payment successful' });
+            } else {
+                return res.status(400).json({ message: 'Payment failed', details: data.result.description });
+            }
+
+        } catch (error) {
+            console.error(error);
+            return res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+
+    static async paymentCallbackMADA(req: ExtendedRequest, res: Response) {
+        try {
+            const { id, resourcePath } = req.body;
+            const response = await fetch(`${HYPERPAY_URL}${resourcePath}?entityId=${HYPERPAY_ENTITY_MADA_ID}`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${HYPERPAY_AUTH_TOKEN}`
@@ -128,9 +182,9 @@ export class WalletController {
             if (!wallet) {
                 return res.status(404).json({message: "Wallet not found"});
             }
-            if (type === 1) {
+            if (type.toLowerCase() === "credit") {
                 wallet.balance = balance + Number(wallet.balance);
-            } else if (type === -1) {
+            } else if (type.toLowerCase() === "debit") {
                 wallet.balance =  Number(wallet.balance) - balance;
             }
             await AppDataSource.getRepository(Wallet).save(wallet);

@@ -7,7 +7,9 @@ walletRouter.get('/api/wallet/info', WalletController.getWallet);
 
 walletRouter.post('/api/wallet/payment', WalletController.payment);
 
-walletRouter.post('/api/wallet/payment/callback', WalletController.paymentCallback);
+walletRouter.post('/api/wallet/payment/visaMasterCard/callback', WalletController.paymentCallbackVisaMasterCard);
+
+walletRouter.post('/api/wallet/payment/MADA/callback', WalletController.paymentCallbackMADA);
 
 walletRouter.patch('/api/wallet/updatebalance/:id', WalletController.updateWalletBalance);
 
