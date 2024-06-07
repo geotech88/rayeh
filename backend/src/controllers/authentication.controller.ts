@@ -30,7 +30,6 @@ export class AuthenticationController {
             const roleRepository = AppDataSource.getRepository(Role);
 
             let user = await userRepository.findOne({ where: { auth0UserId: auth0User.sub } });
-
             if (!user) {
                 user = new User();
                 user.name = auth0User.name as string;
@@ -38,16 +37,13 @@ export class AuthenticationController {
                 user.auth0UserId = auth0User.sub as string;
                 user.path = auth0User.picture as string;
 
-                let roleUser = await roleRepository.findOne({ where: { name: 'user' } });
-                if (!roleUser) {
-                    roleUser = new Role();
-                    roleUser.name = 'user';
-                    await roleRepository.save(roleUser);
-                }
+                const roleUser = new Role();
+                roleUser.name = 'user';
+                await roleRepository.save(roleUser);
 
                 user.role = roleUser;
                 await userRepository.save(user);
-                await WalletController.createWallet(req, res);
+                const result = await WalletController.createWallet(user);
             }
 
             const jwtToken = jwt.sign({ userId: auth0User.sub }, process.env.AUTH0_CLIENT_SECRET!, {
