@@ -4,6 +4,7 @@ import { AppDataSource } from "../config/ormconfig";
 import { User } from "../entity/Users.entity";
 import { Wallet } from "../entity/Wallet.entity";
 import { conversionCurrency } from "../helpers/helpers";
+import { Operations } from "../entity/Operations.entity";
 require('dotenv').config();
 
 const HYPERPAY_URL = process.env.HYPERPAY_URL;
@@ -25,6 +26,27 @@ export class WalletController {
             return {message: "Wallet created!", data: wallet};
         } catch(error: any) {
             return {error: error.message};
+        }
+    }
+
+    static async createRedraw(req: ExtendedRequest, res: Response) {
+        try {
+            const { amount, accountNumber } = req.body;
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.userId}});
+            if (!amount || !accountNumber) {
+                return res.status(400).json({message: "Missing parameters in the request!"});
+            }
+            if (!user) {
+                return res.status(404).json({message: "User not found!"});
+            }
+            const redraw = new Operations();
+            redraw.amount = Number(amount);
+            redraw.accountNumber = accountNumber.toString();
+            redraw.user = user;
+            await AppDataSource.getRepository(Operations).save(redraw);
+            return redraw;
+        } catch (error: any) {
+            return res.status(500).json({message: error.message});
         }
     }
 

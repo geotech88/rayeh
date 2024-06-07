@@ -36,14 +36,6 @@ AppDataSource.initialize().then(async () => {
 
     const messagesController = new MessagesController();
 
-    // io.use((socket: Socket, next: any) => {
-    //     const request = socket.request;
-    //     if (request?.oidc) {
-    //         listSocket.set(socket.id, socket);
-    //     }
-    //     next();
-    // });
-
     io.on('connection', (socket: Socket) => {
         console.log('User connected:', socket.id);
 

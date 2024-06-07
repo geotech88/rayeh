@@ -5,6 +5,8 @@ const walletRouter = Router();
 
 walletRouter.get('/api/wallet/info', WalletController.getWallet);
 
+walletRouter.post('/api/wallet/redraw', WalletController.createRedraw);
+
 walletRouter.post('/api/wallet/payment', WalletController.payment);
 
 walletRouter.post('/api/wallet/payment/visaMasterCard/callback', WalletController.paymentCallbackVisaMasterCard);

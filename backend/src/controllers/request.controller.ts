@@ -9,6 +9,9 @@ export class RequestController {
         try {
             const { from, to, price, cost, date, messageId } = req.body;
             console.log('the informations:',from, to, price, cost, messageId )
+            if (!from || !to || !price || !cost || !date || messageId) {
+                return res.status(400).json({message: "Missing parameters in the body"});
+            }
             const RequestRepository = AppDataSource.getRepository(Request);
             const message = await AppDataSource.getRepository(Message).findOne({where: {id: messageId}});
             if (!message) {

@@ -38,8 +38,8 @@ router.use('/api/admin', authorized(['admin']));
 
 router.use('/api',
         checkIsLoggedIn, 
-        checkOnDatabase, //temporary solution, until https domain is set to use the callback instead
-        authorized(['user', 'admin']));
+        checkOnDatabase,
+        authorized(['user']));
 
 
 export { router, usersRouter, requestRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter, authRouter  };

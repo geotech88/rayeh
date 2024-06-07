@@ -3,6 +3,7 @@ export interface messageDto {
     receiverId: string;
     message: string;
     type: string;
+    tripId: number;
 }
 
 export interface messageUsersDto {

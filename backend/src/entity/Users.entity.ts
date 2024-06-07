@@ -8,6 +8,8 @@ import { Tracker } from "./Tracker.entity";
 import { WalletLogs } from "./WalletLogs.entity";
 import { Reviews } from "./Reviews.entity";
 import { Transaction } from './Transaction.entity';
+import { Conversation } from "./Converation.entity";
+import { Operations } from "./Operations.entity";
 
 @Entity({ name: 'User'})
 export class User {
@@ -30,11 +32,11 @@ export class User {
     @OneToMany(() => Invoice, invoice => invoice.user)
     invoices: Invoice[];
 
-    @OneToMany(() => Message, message => message.senderUser)
-    senderMessages: Message[];
+    @OneToMany(() => Conversation, message => message.senderUser)
+    senderConversation: Conversation[];
     
-    @OneToMany(() => Message, message => message.receiverUser)
-    receiverMessages: Message[];
+    @OneToMany(() => Conversation, message => message.receiverUser)
+    receiverConversation: Conversation[];
 
     @OneToMany(()=> Tracker, tracker => tracker.senderUser)
     senderTrackers: Tracker[];
@@ -59,6 +61,9 @@ export class User {
 
     @OneToMany(() => Transaction, transaction => transaction.receiver)
     transaction_receiver: Transaction[];
+
+    @OneToMany(() => Operations, operations => operations.user)
+    operations: Operations[];
 
     @Column({nullable: true})
     profession: string;

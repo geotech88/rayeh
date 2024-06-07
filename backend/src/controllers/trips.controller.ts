@@ -3,7 +3,7 @@ import { ExtendedRequest } from "../middlewares/Authentication";
 import { AppDataSource } from "../config/ormconfig";
 import { Trips } from "../entity/Trips.entity";
 import { User } from "../entity/Users.entity";
-import { MoreThanOrEqual } from "typeorm";
+import { MoreThanOrEqual, Not } from "typeorm";
 import { Reviews } from "../entity/Reviews.entity";
 import { calculateReviewsAverage } from "../helpers/helpers";
 import { Transaction } from "../entity/Transaction.entity";
@@ -58,7 +58,7 @@ export class TripsController {
         }
     }
 
-    //add user in response, rating, time remaining for the trip
+    //do not retrieve the trips of the logged user
     static async getTripsBySearch(req: ExtendedRequest, res: Response) {
         try {
             const { from, to } = req.query;
@@ -71,7 +71,8 @@ export class TripsController {
                 where: {
                   date: MoreThanOrEqual(fromDate),
                   to: to as string,
-                  from: from as string
+                  from: from as string,
+                  user: {auth0UserId: Not(req.user?.userId)}
                 },
                 take: 14
               });
