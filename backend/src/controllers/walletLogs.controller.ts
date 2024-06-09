@@ -14,6 +14,7 @@ export class WalletLogsController {
             return res.status(500).json({ error: error.message });
         }
     }
+    
     static async createWalletLog(req: any, res: Response) {
         try {
             const { balance, currency, amount } = req.body;

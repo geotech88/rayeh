@@ -6,7 +6,7 @@ import { User } from "../entity/Users.entity";
 import { ExtendedRequest } from "../middlewares/Authentication";
 import { Response } from "express";
 import { Request } from "../entity/Request.entity";
-import { Conversation } from "../entity/Converation.entity";
+import { Conversation } from "../entity/Conversation.entity";
 import { Trips } from "../entity/Trips.entity";
 
 export class MessagesController {
@@ -69,7 +69,7 @@ export class MessagesController {
             if (!senderUser || !receiverUser) {
                 throw new Error('User not found');
             }
-            let getConversation = await AppDataSource.getRepository(Conversation).findOne({where: [{senderUser: {auth0UserId: senderUser?.auth0UserId}, receiverUser: {auth0UserId: receiverUser?.auth0UserId}},
+            let getConversation = await AppDataSource.getRepository(Conversation).findOne({relations: ['receiverUser' , 'senderUser', 'messages', 'trips'], where: [{senderUser: {auth0UserId: senderUser?.auth0UserId}, receiverUser: {auth0UserId: receiverUser?.auth0UserId}},
                                                                                                     {senderUser: {auth0UserId: receiverUser?.auth0UserId}, receiverUser: {auth0UserId: senderUser?.auth0UserId}}
                                                                                             ]});
             if (!getConversation) {
@@ -80,7 +80,9 @@ export class MessagesController {
                 getConversation = new Conversation();
                 getConversation.senderUser = senderUser;
                 getConversation.receiverUser = receiverUser;
+                getConversation.trips = [];
                 getConversation.trips.push(Trip);
+                getConversation.messages = [];
             }
             const newMessage = new Message();
             newMessage.message = message.message;
@@ -88,7 +90,7 @@ export class MessagesController {
             await AppDataSource.getRepository(Message).save(newMessage);
             getConversation.messages.push(newMessage);
             await AppDataSource.getRepository(Conversation).save(getConversation);
-            return {newMessage, getConversation};
+            return {newMessage: newMessage, conversation: getConversation};
         } catch (error: any) {
             throw new Error(`Failed to store message in database: ${error.message}`);
         }
@@ -108,7 +110,20 @@ export class MessagesController {
 
     async getAllDiscussions(data: any) {
         try {
-
+            let getDiscussions = await AppDataSource.getRepository(Conversation).find({relations: ['senderUser', 'receiverUser'],
+                                                                                where: [{senderUser: {auth0UserId: data.userId}},
+                                                                                        {receiverUser: {auth0UserId: data.userId}}
+                                                                                ],
+                                                                                order: {createdAt: 'ASC' as const}
+                                                                            });
+            for (let conversation of getDiscussions) {
+                const latestMessage = await AppDataSource.getRepository(Message).findOne({
+                    where: { conversation: { id: conversation.id } },
+                    order: { createdAt: 'DESC' }
+                });
+                conversation.messages = latestMessage ? [latestMessage] : [];
+            }
+            return getDiscussions;
         } catch (error: any) {
             throw new Error(`Failed to get all discussion: ${error.message}`);
         }
@@ -122,7 +137,7 @@ export class MessagesController {
                 if (!data.message || !data.receiverId || !data.senderId || !data.type) {
                     throw new Error('missing some data!');
                 }
-                const {newMessage, conversation} = await this.storeMessage(data);
+                const {newMessage, conversation}  = await this.storeMessage(data);
                 let receiverSocket = this.listSocket.get(String(conversation.receiverUser.auth0UserId));
                 if (receiverSocket === socket) {
                     receiverSocket = this.listSocket.get(String(conversation.senderUser.auth0UserId));
@@ -135,7 +150,6 @@ export class MessagesController {
                     } else {
                         result = {newMessage};
                     }
-                    console.log('send message:', result);
                     receiverSocket.emit('newMessage', result);
                 }
             } catch (error: any) {

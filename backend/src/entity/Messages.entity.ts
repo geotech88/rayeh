@@ -2,7 +2,7 @@ require("reflect-metadata");
 import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./Users.entity";
 import { Request } from "./Request.entity";
-import { Conversation } from "./Converation.entity";
+import { Conversation } from "./Conversation.entity";
 
 @Entity({ name: 'Message'}) 
 export class Message {

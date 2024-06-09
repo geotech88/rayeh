@@ -13,6 +13,7 @@ import { reviewRouter } from './reviews';
 import { trackerRouter } from './tracker';
 import { transactionRouter } from './transactions';
 import { authRouter } from './authentication';
+import { adminRouter } from './admin';
 
 const router = Router();
 
@@ -34,7 +35,10 @@ router.get('/', (req, res) => {
     res.send("Welcome in the backend part");
 });
 
-router.use('/api/admin', authorized(['admin']));
+router.use('/admin', 
+        checkIsLoggedIn, 
+        checkOnDatabase,
+        authorized(['admin']));
 
 router.use('/api',
         checkIsLoggedIn, 
@@ -42,4 +46,4 @@ router.use('/api',
         authorized(['user']));
 
 
-export { router, usersRouter, requestRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter, authRouter  };
+export { router, usersRouter, requestRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter, authRouter, adminRouter  };

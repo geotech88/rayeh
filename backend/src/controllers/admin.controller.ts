@@ -15,9 +15,13 @@ const HYPERPAY_ENTITY_MADA_ID = process.env.HYPERPAY_ENTITY_MADA as string;
 const HYPERPAY_AUTH_TOKEN = process.env.HYERPAY_AUTH_TOKEN as string;
 
 export class AdminController {
+
     static async acceptPayments(req: ExtendedRequest, res: Response){
         try {
-            const { amount, bankAccountDetails, operationId } = req.body;
+            const { amount, bankAccountDetails, operationId } = req.query;
+            if (!amount || !bankAccountDetails || operationId) {
+                return res.status(400).json({message: "Missing parameters in query!"})
+            }
             const walletRepository = AppDataSource.getRepository(Wallet);
             const wallet = await walletRepository.findOne({ where: { user: { id: req.user?.userId } } });
     
@@ -25,16 +29,16 @@ export class AdminController {
                 return res.status(404).json({ message: 'Wallet not found' });
             }
     
-            const operation = await AppDataSource.getRepository(Operations).findOne({where: {id: operationId}});
+            const operation = await AppDataSource.getRepository(Operations).findOne({where: {id: Number(operationId)}});
             if (!operation) {
                 return res.status(404).json({message: "The operation is not available"});
             }
             // Ensure the wallet has sufficient balance
-            if (wallet.balance < amount) {
+            if (wallet.balance < Number(amount)) {
                 return res.status(400).json({ message: 'Insufficient balance' });
             }
     
-            const formattedAmount = parseFloat(amount).toFixed(2);
+            const formattedAmount = parseFloat(String(amount)).toFixed(2);
     
             const params = new URLSearchParams({
                 entityId: HYPERPAY_ENTITY_VISA_MASTERCARD_ID,
@@ -62,7 +66,7 @@ export class AdminController {
                 return res.status(response.status).json({ message: `Error: ${data.result.description}` });
             }
     
-            wallet.balance -= parseFloat(amount);
+            wallet.balance -= parseFloat(String(amount));
             await walletRepository.save(wallet);
             operation.pending = false;
             operation.status = 'accepted';
@@ -80,6 +84,10 @@ export class AdminController {
             if (!user) {
                 return res.status(404).json({message: 'User not found!'});
             }
+            const wallet = await AppDataSource.getRepository(Wallet).findOne({where: {user: {auth0UserId: req.user?.userId}}});
+            if (!wallet) {
+                return res.status(404).json({message: "The wallet not found!"});
+            }
             const numberOfUsers = (await AppDataSource.getRepository(User).find({where: {auth0UserId: Not(req.user?.userId)}})).length;
             const amountOfGain = await AppDataSource.getRepository(Invoice)
                 .createQueryBuilder("invoice")
@@ -91,6 +99,7 @@ export class AdminController {
                 .getRawOne();
             return res.status(200).json({message: 'Information retrived successfully', data: {
                     user,
+                    wallet: wallet,
                     numberOfUsers: numberOfUsers,
                     totalAmount: amountOfGain.total - amountOfWithdraw.total
             }});
@@ -104,15 +113,17 @@ export class AdminController {
         try {
             const pendingOperations = await AppDataSource.getRepository(Operations).find({relations: {user: true}, where: {pending: true}});
             const previousOperations = await AppDataSource.getRepository(Operations).find({relations: {user: true}, where: {pending: false}});
-            await Promise.all(pendingOperations.map(async (operation) => {
-                const reviews = await AppDataSource.getRepository(Reviews).find({
-                    where: { user: operation.user }
-                });
-                const averageRating = calculateReviewsAverage(reviews);
-                return { ...operation, averageRating: averageRating || 0 };
-            }));
+            if (pendingOperations) {
+                await Promise.all(pendingOperations.map(async (operation: Operations) => {
+                    const reviews = await AppDataSource.getRepository(Reviews).find({
+                        where: { user: operation.user }
+                    });
+                    const averageRating = calculateReviewsAverage(reviews);
+                    return { ...operation, averageRating: averageRating || 0 };
+                }));
+            }
 
-            return {pendingOperations: pendingOperations, previousOperations: previousOperations};
+            return res.status(200).json({message: 'retrieved succussfully!', data: {pendingOperations: pendingOperations, previousOperations: previousOperations}});
         } catch (error: any) {
             return res.status(500).json({message: error.message})
         }

@@ -8,7 +8,7 @@ import { Tracker } from "./Tracker.entity";
 import { WalletLogs } from "./WalletLogs.entity";
 import { Reviews } from "./Reviews.entity";
 import { Transaction } from './Transaction.entity';
-import { Conversation } from "./Converation.entity";
+import { Conversation } from "./Conversation.entity";
 import { Operations } from "./Operations.entity";
 
 @Entity({ name: 'User'})

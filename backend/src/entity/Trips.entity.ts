@@ -4,7 +4,7 @@ import { User } from "./Users.entity";
 import { Tracker } from './Tracker.entity';
 import { Transaction } from './Transaction.entity';
 import { Reviews } from './Reviews.entity';
-import { Conversation } from './Converation.entity';
+import { Conversation } from './Conversation.entity';
 
 @Entity({ name: 'Trips'})
 export class Trips {

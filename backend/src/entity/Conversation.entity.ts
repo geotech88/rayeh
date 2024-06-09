@@ -1,5 +1,5 @@
 require("reflect-metadata");
-import { CreateDateColumn, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Message } from "./Messages.entity";
 import { User } from "./Users.entity";
 import { Trips } from "./Trips.entity";
@@ -19,7 +19,7 @@ export class Conversation {
     receiverUser: User;
 
     @ManyToMany(() => Trips, trips => trips.conversation)
-    @JoinColumn()
+    @JoinTable()
     trips: Trips[];
 
     @CreateDateColumn()
