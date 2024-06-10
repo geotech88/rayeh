@@ -1,6 +1,6 @@
 import express from 'express';
 // import cors from 'cors';
-import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter, authRouter } from './routes/routes';
+import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter, authRouter, adminRouter } from './routes/routes';
 import { AppDataSource } from './config/ormconfig';
 import http from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
@@ -33,16 +33,9 @@ AppDataSource.initialize().then(async () => {
     app.use(trackerRouter);
     app.use(transactionRouter);
     app.use(authRouter);
+    app.use(adminRouter);
 
     const messagesController = new MessagesController();
-
-    // io.use((socket: Socket, next: any) => {
-    //     const request = socket.request;
-    //     if (request?.oidc) {
-    //         listSocket.set(socket.id, socket);
-    //     }
-    //     next();
-    // });
 
     io.on('connection', (socket: Socket) => {
         console.log('User connected:', socket.id);

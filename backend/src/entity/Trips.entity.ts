@@ -1,9 +1,10 @@
 import 'reflect-metadata';
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToMany, ManyToOne, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./Users.entity";
 import { Tracker } from './Tracker.entity';
 import { Transaction } from './Transaction.entity';
 import { Reviews } from './Reviews.entity';
+import { Conversation } from './Conversation.entity';
 
 @Entity({ name: 'Trips'})
 export class Trips {
@@ -33,6 +34,9 @@ export class Trips {
 
     @OneToOne(() => Reviews, review => review.trip)
     review: Reviews;
+
+    @ManyToMany(() => Conversation, conversation => conversation.trips)
+    conversation: Conversation[];
     
     @CreateDateColumn()
     createdAt: Date;

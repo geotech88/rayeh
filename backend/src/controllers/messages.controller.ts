@@ -6,6 +6,8 @@ import { User } from "../entity/Users.entity";
 import { ExtendedRequest } from "../middlewares/Authentication";
 import { Response } from "express";
 import { Request } from "../entity/Request.entity";
+import { Conversation } from "../entity/Conversation.entity";
+import { Trips } from "../entity/Trips.entity";
 
 export class MessagesController {
     private listSocket: Map<string, Socket> = new Map<string, Socket>();
@@ -46,77 +48,85 @@ export class MessagesController {
         });
     }
 
-    async retrieveRequest(requestId: number) {
-        const request = await AppDataSource.getRepository(Request).findOne({where: {id : requestId}});
+    async retrieveRequest(messageId: number) {
+        const request = await AppDataSource.getRepository(Request).findOne({where: {message: { id: messageId}}});
         if (!request) {
             return [];
         }
         return request;
     }
 
-    async storeMessage(message: messageDto): Promise<Message> {
+    async storeMessage(message: messageDto): Promise<any> {
         try {
+            if (message.senderId === message.receiverId) {
+                throw new Error('Should not be the same user');
+            }
+            if (!message.type || (!message.message && message.type.toLowerCase() !== "request")) {
+                throw new Error("Something wrong with the received data");
+            }
             const senderUser = await AppDataSource.getRepository(User).findOneBy({ auth0UserId: message.senderId });
             const receiverUser = await AppDataSource.getRepository(User).findOneBy({ auth0UserId: message.receiverId });
             if (!senderUser || !receiverUser) {
                 throw new Error('User not found');
             }
+            let getConversation = await AppDataSource.getRepository(Conversation).findOne({relations: ['receiverUser' , 'senderUser', 'messages', 'trips'], where: [{senderUser: {auth0UserId: senderUser?.auth0UserId}, receiverUser: {auth0UserId: receiverUser?.auth0UserId}},
+                                                                                                    {senderUser: {auth0UserId: receiverUser?.auth0UserId}, receiverUser: {auth0UserId: senderUser?.auth0UserId}}
+                                                                                            ]});
+            if (!getConversation) {
+                const Trip = await AppDataSource.getRepository(Trips).findOne({where: {id: message.tripId}});
+                if (!Trip) {
+                    throw new Error('The trip is not available');
+                }
+                getConversation = new Conversation();
+                getConversation.senderUser = senderUser;
+                getConversation.receiverUser = receiverUser;
+                getConversation.trips = [];
+                getConversation.trips.push(Trip);
+                getConversation.messages = [];
+            }
             const newMessage = new Message();
-            newMessage.senderUser = senderUser;
-            newMessage.receiverUser = receiverUser;
             newMessage.message = message.message;
             newMessage.type = message.type;
             await AppDataSource.getRepository(Message).save(newMessage);
-            return newMessage;
+            getConversation.messages.push(newMessage);
+            await AppDataSource.getRepository(Conversation).save(getConversation);
+            return {newMessage: newMessage, conversation: getConversation};
         } catch (error: any) {
-            throw new Error('Failed to store message in database');
+            throw new Error(`Failed to store message in database: ${error.message}`);
         }
     }
 
-    async getAllMessages(messageUsers: messageUsersDto): Promise<Message[]> {
+    async getAllMessages(messageUsers: messageUsersDto): Promise<Conversation> {
 
         try {
-            const queryCriteria = {
-                relations: {senderUser: true, receiverUser: true},
-                where: [
-                    {senderUser: {auth0UserId: messageUsers.user1Id}, receiverUser: {auth0UserId: messageUsers.user2Id}},
-                    {senderUser: {auth0UserId: messageUsers.user2Id}, receiverUser: {auth0UserId: messageUsers.user1Id}},
-                ],
-                order: {
-                    createdAt: 'ASC' as const,
-                }
-            };
-            return await AppDataSource.getRepository(Message).find(queryCriteria);
+            let getConversation = await AppDataSource.getRepository(Conversation).findOne({relations: {messages: true}, where: [{senderUser: {auth0UserId: messageUsers.user1Id}, receiverUser: {auth0UserId: messageUsers.user2Id}},
+                                                                                            {senderUser: {auth0UserId: messageUsers.user2Id}, receiverUser: {auth0UserId: messageUsers.user1Id}}
+                                                                                    ]});
+            return getConversation as Conversation;
         } catch (error: any) {
-            throw new Error('Failed to retrieve messages from database');
+            throw new Error(`Failed to retrieve messages from database: ${error.message}`);
         }
     }
 
     async getAllDiscussions(data: any) {
-        const messages = await AppDataSource.getRepository(Message).find({
-            where: [
-                { senderUser: { auth0UserId: data.userId } },
-                { receiverUser: { auth0UserId: data.userId } }
-            ],
-            order: {
-                createdAt: 'ASC' as const,
-            },
-            relations: ['senderUser', 'receiverUser']
-        });
-
-        const lastMessages = messages.reduce((acc:any, message:any) => {
-            const key = message.senderUser.auth0UserId < message.receiverUser.auth0UserId ?
-                `${message.senderUser.auth0UserId}-${message.receiverUser.auth0UserId}` :
-                `${message.receiverUser.auth0UserId}-${message.senderUser.auth0UserId}`;
-
-            if (!acc.has(key) || acc.get(key).createdAt < message.createdAt) {
-                acc.set(key, message);
+        try {
+            let getDiscussions = await AppDataSource.getRepository(Conversation).find({relations: ['senderUser', 'receiverUser'],
+                                                                                where: [{senderUser: {auth0UserId: data.userId}},
+                                                                                        {receiverUser: {auth0UserId: data.userId}}
+                                                                                ],
+                                                                                order: {createdAt: 'ASC' as const}
+                                                                            });
+            for (let conversation of getDiscussions) {
+                const latestMessage = await AppDataSource.getRepository(Message).findOne({
+                    where: { conversation: { id: conversation.id } },
+                    order: { createdAt: 'DESC' }
+                });
+                conversation.messages = latestMessage ? [latestMessage] : [];
             }
-
-            return acc;
-        }, new Map<string, Message>());
-
-        return Array.from(lastMessages.values());
+            return getDiscussions;
+        } catch (error: any) {
+            throw new Error(`Failed to get all discussion: ${error.message}`);
+        }
     }
 
 
@@ -127,17 +137,19 @@ export class MessagesController {
                 if (!data.message || !data.receiverId || !data.senderId || !data.type) {
                     throw new Error('missing some data!');
                 }
-                const newMessage = await this.storeMessage(data);
-                const receiverSocket = this.listSocket.get(String(newMessage.receiverUser.auth0UserId));
+                const {newMessage, conversation}  = await this.storeMessage(data);
+                let receiverSocket = this.listSocket.get(String(conversation.receiverUser.auth0UserId));
+                if (receiverSocket === socket) {
+                    receiverSocket = this.listSocket.get(String(conversation.senderUser.auth0UserId));
+                }
                 let result = {};
                 if (receiverSocket) {
-                    if (newMessage.type.toLowerCase() === 'request') {
+                    if (newMessage.type.toLowerCase() === 'request') { //check if the type if request, and message empty, return the request object
                         const request = await this.retrieveRequest(Number(newMessage.message));
                         result = {newMessage, request};
                     } else {
                         result = {newMessage};
                     }
-                    console.log('send message:', result);
                     receiverSocket.emit('newMessage', result);
                 }
             } catch (error: any) {
@@ -150,11 +162,11 @@ export class MessagesController {
                 if (!data.user1Id || !data.user2Id) {
                     throw new Error('missing some data!');
                 }
-                const messages = await this.getAllMessages(data);
-                const messagesWithRequests = await Promise.all(messages.map(async (message) => {
+                const conversation = await this.getAllMessages(data);
+                const messagesWithRequests = await Promise.all(conversation.messages.map(async (message) => {
                     if (message.type.toLowerCase() === 'request') {
-                        const requestId = Number(message.message);
-                        const request = await this.retrieveRequest(requestId);
+                        const messageId = Number(message.id);
+                        const request = await this.retrieveRequest(messageId);
                         return { ...message, request };
                     }
                     return message;
