@@ -8,6 +8,7 @@ import { Invoice } from "../entity/Invoices.entity";
 import { Operations } from "../entity/Operations.entity";
 import { Reviews } from "../entity/Reviews.entity";
 import { calculateReviewsAverage } from "../helpers/helpers";
+import { Role } from "../entity/Roles.entity";
 
 const HYPERPAY_URL = process.env.HYPERPAY_URL as string;
 const HYPERPAY_ENTITY_VISA_MASTERCARD_ID = process.env.HYPERPAY_ENTITY_VISA_MASTERCARD as string;
@@ -75,6 +76,39 @@ export class AdminController {
             return res.json({ message: 'Withdrawal successful', data: {transactionId: data.id, wallet} });
         } catch (error: any) {
             return res.status(500).json({message: error.message})
+        }
+    }
+
+    static async updateRole(req: ExtendedRequest, res: Response) {
+        try {
+            const user = await AppDataSource.getRepository(User).findOne({relations: ['role'], where: {auth0UserId: req.user?.userId}});
+            if (!user) {
+                return res.status(404).json({message: 'User not found!'});
+            }
+            let newRole;
+            if (user.role.name === 'admin') {
+                const RoleRepository = AppDataSource.getRepository(Role);
+                const roleUser = await RoleRepository.findOne({where: {id: user.role.id}});
+                if (!roleUser) {
+                    return res.status(400).json({message: "Something wrong with role of user"});
+                }
+                newRole = 'user';
+                roleUser.name = 'user';
+                await RoleRepository.save(roleUser);
+            } else {
+                
+                const RoleRepository = AppDataSource.getRepository(Role);
+                const roleUser = await RoleRepository.findOne({where: {id: user.role.id}});
+                if (!roleUser) {
+                    return res.status(400).json({message: "Something wrong with role of user"});
+                }
+                newRole = 'admin';
+                roleUser.name = 'admin';
+                await RoleRepository.save(roleUser);
+            }
+            return res.status(200).json({message: `Role updated successfully to ${newRole}`});
+        } catch (error: any) {
+            return res.status(500).json({error: error.message});
         }
     }
 

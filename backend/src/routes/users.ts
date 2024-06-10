@@ -12,6 +12,8 @@ usersRouter.get('/api/users/me', UserController.getMyInfo);
 
 usersRouter.get('/api/users/:id', UserController.getUser);
 
+usersRouter.patch('/api/users/updateRole', UserController.updateRole)
+
 usersRouter.patch('/api/users/update/all', UserController.updateUserInfo);
 
 usersRouter.patch('/api/users/update/password', UserController.changePassword);
