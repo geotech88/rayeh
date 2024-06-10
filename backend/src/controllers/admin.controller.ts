@@ -145,15 +145,18 @@ export class AdminController {
     //to get all request of redraw and previous accepted withdraw
     static async getAllTransactionRequest(req: ExtendedRequest, res: Response) {
         try {
-            const pendingOperations = await AppDataSource.getRepository(Operations).find({relations: {user: true}, where: {pending: true}});
+            let pendingOperations = await AppDataSource.getRepository(Operations).find({relations: {user: true}, where: {pending: true}});
             const previousOperations = await AppDataSource.getRepository(Operations).find({relations: {user: true}, where: {pending: false}});
             if (pendingOperations) {
-                await Promise.all(pendingOperations.map(async (operation: Operations) => {
+                pendingOperations = await Promise.all(pendingOperations.map(async (operation: Operations) => {
                     const reviews = await AppDataSource.getRepository(Reviews).find({
-                        where: { user: operation.user }
+                        where: { user: {auth0UserId: operation.user.auth0UserId} }
                     });
+                    const wallet = await AppDataSource.getRepository(Wallet).find({
+                        where: {user: {auth0UserId: operation.user.auth0UserId}}
+                    })
                     const averageRating = calculateReviewsAverage(reviews);
-                    return { ...operation, averageRating: averageRating || 0 };
+                    return { ...operation, averageRating: averageRating || 0 , wallet: wallet};
                 }));
             }
 
