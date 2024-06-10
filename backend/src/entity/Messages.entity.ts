@@ -1,5 +1,5 @@
 require("reflect-metadata");
-import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { User } from "./Users.entity";
 import { Request } from "./Request.entity";
 import { Conversation } from "./Conversation.entity";
@@ -14,6 +14,9 @@ export class Message {
 
     @OneToMany(() => Request, request => request.message)
     request: Request[];
+
+    @ManyToOne(() => User, User => User.message)
+    user: User;
 
     @Column({nullable: false})
     message: string;

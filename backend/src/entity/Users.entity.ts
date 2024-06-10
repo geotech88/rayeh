@@ -29,6 +29,9 @@ export class User {
     @JoinColumn()
     role: Role;
 
+    @OneToMany(() => Message, message => message.user)
+    message: Message[];
+
     @OneToMany(() => Invoice, invoice => invoice.user)
     invoices: Invoice[];
 
