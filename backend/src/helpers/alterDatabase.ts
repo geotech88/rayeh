@@ -37,7 +37,11 @@ export async function alterColumns(): Promise<void> {
     await queryRunner.query(`ALTER TABLE "Conversation" ADD CONSTRAINT "FK_89e4902f4eadff37c15bf8671f8" FOREIGN KEY ("receiverUserId") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
     // Add new column to Tracker table
     await queryRunner.query(`ALTER TABLE "Operations" ADD CONSTRAINT "FK_dcb1c1218c8361ada88e8e8bfc3" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-    
+    await queryRunner.query(`CREATE TABLE "conversation_trips_trips" ("conversationId" integer NOT NULL, "tripsId" integer NOT NULL, CONSTRAINT "PK_d54d5dcc689c20c707af392a40b" PRIMARY KEY ("conversationId", "tripsId"))`);
+    await queryRunner.query(`CREATE INDEX "IDX_e03fa540375874fac2aef4a4fc" ON "conversation_trips_trips" ("conversationId") `);
+    await queryRunner.query(`CREATE INDEX "IDX_03829a54b6405b6713ad05e656" ON "conversation_trips_trips" ("tripsId") `);
+    await queryRunner.query(`ALTER TABLE "conversation_trips_trips" ADD CONSTRAINT "FK_e03fa540375874fac2aef4a4fca" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
+    await queryRunner.query(`ALTER TABLE "conversation_trips_trips" ADD CONSTRAINT "FK_03829a54b6405b6713ad05e6565" FOREIGN KEY ("tripsId") REFERENCES "Trips"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
     // if (!(await checkColumnExistence('Tracker', 'place'))) {
     //   await queryRunner.query(`ALTER TABLE "Tracker" ADD COLUMN "place" VARCHAR(255);`);
     //   console.log(`Added column: place in table: Tracker`);
