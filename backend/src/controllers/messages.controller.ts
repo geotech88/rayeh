@@ -87,6 +87,7 @@ export class MessagesController {
             const newMessage = new Message();
             newMessage.message = message.message;
             newMessage.type = message.type;
+            newMessage.user = senderUser;
             await AppDataSource.getRepository(Message).save(newMessage);
             getConversation.messages.push(newMessage);
             await AppDataSource.getRepository(Conversation).save(getConversation);
@@ -99,7 +100,7 @@ export class MessagesController {
     async getAllMessages(messageUsers: messageUsersDto): Promise<Conversation> {
 
         try {
-            let getConversation = await AppDataSource.getRepository(Conversation).findOne({relations: {messages: true}, where: [{senderUser: {auth0UserId: messageUsers.user1Id}, receiverUser: {auth0UserId: messageUsers.user2Id}},
+            let getConversation = await AppDataSource.getRepository(Conversation).findOne({relations: {messages: {user: true}, senderUser: true, receiverUser: true}, where: [{senderUser: {auth0UserId: messageUsers.user1Id}, receiverUser: {auth0UserId: messageUsers.user2Id}},
                                                                                             {senderUser: {auth0UserId: messageUsers.user2Id}, receiverUser: {auth0UserId: messageUsers.user1Id}}
                                                                                     ]});
             return getConversation as Conversation;
@@ -118,6 +119,7 @@ export class MessagesController {
                                                                             });
             for (let conversation of getDiscussions) {
                 const latestMessage = await AppDataSource.getRepository(Message).findOne({
+                    relations: {user: true},
                     where: { conversation: { id: conversation.id } },
                     order: { createdAt: 'DESC' }
                 });
@@ -163,6 +165,7 @@ export class MessagesController {
                     throw new Error('missing some data!');
                 }
                 const conversation = await this.getAllMessages(data);
+                console.log('the conversation:', conversation);
                 const messagesWithRequests = await Promise.all(conversation.messages.map(async (message) => {
                     if (message.type.toLowerCase() === 'request') {
                         const messageId = Number(message.id);
