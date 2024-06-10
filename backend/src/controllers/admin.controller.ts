@@ -170,7 +170,7 @@ export class AdminController {
     static async getAllTrips(req: ExtendedRequest, res: Response) {
         try {
             const transactions = await AppDataSource.getRepository(Transaction).find({
-                relations: {invoice: true, sender: true, receiver: true},
+                relations: {invoice: true, sender: true, receiver: true, trip: true},
                 order: {
                     id: 'DESC' as const
                 },
