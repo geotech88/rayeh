@@ -29,7 +29,7 @@ export class WalletController {
         }
     }
 
-    static async createRedraw(req: ExtendedRequest, res: Response) {
+    static async createwithdraw(req: ExtendedRequest, res: Response) {
         try {
             const { amount, accountNumber } = req.body;
             const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.userId}});
@@ -39,12 +39,19 @@ export class WalletController {
             if (!user) {
                 return res.status(404).json({message: "User not found!"});
             }
+            const wallet = await AppDataSource.getRepository(Wallet).findOne({where: {user: {auth0UserId: req.user?.userId}}});
+            if (!wallet) {
+                return res.status(404).json({message: "The user do not have a wallet!"});
+            }
+            if (wallet.balance < Number(amount)) {
+                return res.status(400).json({message: "Insufficient balance!"});
+            }
             const redraw = new Operations();
             redraw.amount = Number(amount);
             redraw.accountNumber = accountNumber.toString();
             redraw.user = user;
             await AppDataSource.getRepository(Operations).save(redraw);
-            return redraw;
+            return res.status(200).json({message: "The withdraw created successfully!", data: redraw});
         } catch (error: any) {
             return res.status(500).json({message: error.message});
         }
@@ -191,7 +198,8 @@ export class WalletController {
             if (!wallet) {
                 return res.status(404).json({message: "Wallet not found"});
             }
-            return res.status(200).json({message: "Wallet retrieved successfully", data: wallet});
+            const operations = await AppDataSource.getRepository(Operations).find({where: {user : {auth0UserId: req.user?.userId}, pending: false}});
+            return res.status(200).json({message: "Wallet retrieved successfully", data: {wallet: wallet, previous_redraws: operations}});
         } catch (error: any) {
             return res.status(500).json({error: error.message});
         }
