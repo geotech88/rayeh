@@ -9,6 +9,7 @@ import { Operations } from "../entity/Operations.entity";
 import { Reviews } from "../entity/Reviews.entity";
 import { calculateReviewsAverage } from "../helpers/helpers";
 import { Role } from "../entity/Roles.entity";
+import { Transaction } from "../entity/Transaction.entity";
 
 const HYPERPAY_URL = process.env.HYPERPAY_URL as string;
 const HYPERPAY_ENTITY_VISA_MASTERCARD_ID = process.env.HYPERPAY_ENTITY_VISA_MASTERCARD as string;
@@ -163,6 +164,22 @@ export class AdminController {
             return res.status(200).json({message: 'retrieved succussfully!', data: {pendingOperations: pendingOperations, previousOperations: previousOperations}});
         } catch (error: any) {
             return res.status(500).json({message: error.message})
+        }
+    }
+
+    static async getAllTrips(req: ExtendedRequest, res: Response) {
+        try {
+            const transactions = await AppDataSource.getRepository(Transaction).find({
+                relations: {invoice: true, sender: true, receiver: true},
+                order: {
+                    id: 'DESC' as const
+                },
+                take: 20
+            });
+
+            return res.status(200).json({message: "Retrieved successfully!", data: transactions});
+        } catch (error: any) {
+            return res.status(500).json({message: error.message});
         }
     }
 
