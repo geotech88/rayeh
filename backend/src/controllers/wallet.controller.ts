@@ -29,6 +29,22 @@ export class WalletController {
         }
     }
 
+    static async createWalletAPI(req: ExtendedRequest, res: Response) {
+        try {
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId:  req.user?.userId}});
+            if (!user) {
+                return {message: "User not found"};
+            }
+            const WalletRepository = AppDataSource.getRepository(Wallet);
+            const wallet = new Wallet();
+            wallet.user = user;
+            await WalletRepository.save(wallet);
+            return res.status(200).json({message: "Wallet created!", data: wallet});
+        } catch(error: any) {
+            return res.status(500).json({error: error.message});
+        }
+    }
+
     static async createwithdraw(req: ExtendedRequest, res: Response) {
         try {
             const { amount, accountNumber } = req.body;

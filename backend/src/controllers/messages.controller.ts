@@ -72,17 +72,20 @@ export class MessagesController {
             let getConversation = await AppDataSource.getRepository(Conversation).findOne({relations: ['receiverUser' , 'senderUser', 'messages', 'trips'], where: [{senderUser: {auth0UserId: senderUser?.auth0UserId}, receiverUser: {auth0UserId: receiverUser?.auth0UserId}},
                                                                                                     {senderUser: {auth0UserId: receiverUser?.auth0UserId}, receiverUser: {auth0UserId: senderUser?.auth0UserId}}
                                                                                             ]});
+            const Trip = await AppDataSource.getRepository(Trips).findOne({where: {id: message.tripId}});
+            if (!Trip) {
+                throw new Error('The trip is not available');
+            }
             if (!getConversation) {
-                const Trip = await AppDataSource.getRepository(Trips).findOne({where: {id: message.tripId}});
-                if (!Trip) {
-                    throw new Error('The trip is not available');
-                }
                 getConversation = new Conversation();
                 getConversation.senderUser = senderUser;
                 getConversation.receiverUser = receiverUser;
                 getConversation.trips = [];
-                getConversation.trips.push(Trip);
                 getConversation.messages = [];
+            }
+            const tripExists = getConversation.trips.some(trip => trip.id === Trip.id);
+            if (!tripExists) {
+                getConversation.trips.push(Trip);
             }
             const newMessage = new Message();
             newMessage.message = message.message;
@@ -124,6 +127,11 @@ export class MessagesController {
                     order: { createdAt: 'DESC' }
                 });
                 conversation.messages = latestMessage ? [latestMessage] : [];
+                const lastTrip = await AppDataSource.getRepository(Trips).findOne({
+                    where: { conversation: { id: conversation.id } },
+                    order: { createdAt: 'DESC' }
+                });
+                conversation.trips = lastTrip ? [lastTrip] : [];
             }
             return getDiscussions;
         } catch (error: any) {

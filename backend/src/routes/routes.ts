@@ -14,6 +14,7 @@ import { trackerRouter } from './tracker';
 import { transactionRouter } from './transactions';
 import { authRouter } from './authentication';
 import { adminRouter } from './admin';
+import { roleRouter } from './role';
 
 const router = Router();
 
@@ -35,6 +36,12 @@ router.get('/', (req, res) => {
     res.send("Welcome in the backend part");
 });
 
+router.use('/checkRole',
+        checkIsLoggedIn,
+        checkOnDatabase,
+        authorized(['admin', 'user'])
+)
+
 router.use('/admin', 
         checkIsLoggedIn, 
         checkOnDatabase,
@@ -46,4 +53,4 @@ router.use('/api',
         authorized(['user']));
 
 
-export { router, usersRouter, requestRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter, authRouter, adminRouter  };
+export { router, usersRouter, requestRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter, authRouter, adminRouter, roleRouter  };

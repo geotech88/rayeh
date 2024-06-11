@@ -3,6 +3,8 @@ import { WalletController } from '../controllers/wallet.controller';
 
 const walletRouter = Router();
 
+walletRouter.patch('/api/wallet/create', WalletController.createWalletAPI);
+
 walletRouter.get('/api/wallet/info', WalletController.getWallet);
 
 walletRouter.post('/api/wallet/withdraw', WalletController.createwithdraw);
