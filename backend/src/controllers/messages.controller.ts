@@ -156,9 +156,9 @@ export class MessagesController {
                 if (receiverSocket) {
                     if (newMessage.type.toLowerCase() === 'request') { //check if the type if request, and message empty, return the request object
                         const request = await this.retrieveRequest(Number(newMessage.message));
-                        result = {newMessage, request};
+                        result = {newMessage, user: conversation.senderUser, request};
                     } else {
-                        result = {newMessage};
+                        result = {newMessage, user: conversation.senderUser};
                     }
                     receiverSocket.emit('newMessage', result);
                 }
