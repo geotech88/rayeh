@@ -111,7 +111,7 @@ export class MessagesController {
 
     async getAllDiscussions(data: any) {
         try {
-            let getDiscussions = await AppDataSource.getRepository(Conversation).find({relations: ['senderUser', 'receiverUser'],
+            let getDiscussions = await AppDataSource.getRepository(Conversation).find({relations: ['senderUser', 'receiverUser', 'trips'],
                                                                                 where: [{senderUser: {auth0UserId: data.userId}},
                                                                                         {receiverUser: {auth0UserId: data.userId}}
                                                                                 ],
