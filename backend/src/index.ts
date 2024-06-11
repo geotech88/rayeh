@@ -1,6 +1,6 @@
 import express from 'express';
 // import cors from 'cors';
-import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter, authRouter, adminRouter } from './routes/routes';
+import { requestRouter, router, usersRouter, tripsRouter, invoiceRouter, walletRouter, walletLogsRouter, reviewRouter, trackerRouter, transactionRouter, authRouter, adminRouter, roleRouter } from './routes/routes';
 import { AppDataSource } from './config/ormconfig';
 import http from 'http';
 import { Server as SocketIOServer, Socket } from 'socket.io';
@@ -34,6 +34,7 @@ AppDataSource.initialize().then(async () => {
     app.use(transactionRouter);
     app.use(authRouter);
     app.use(adminRouter);
+    app.use(roleRouter);
 
     const messagesController = new MessagesController();
 
