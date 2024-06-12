@@ -21,8 +21,8 @@ export class RequestController {
             const request = new Request();
             request.from = from;
             request.to = to;
-            request.price = price;
-            request.cost = cost;
+            request.price = String(price);
+            request.cost = String(cost);
             request.message = message;
             request.date = new Date(date);
             await RequestRepository.save(request);
