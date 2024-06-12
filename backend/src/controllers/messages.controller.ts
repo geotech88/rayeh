@@ -49,7 +49,7 @@ export class MessagesController {
     }
 
     async retrieveRequest(messageId: number) {
-        const request = await AppDataSource.getRepository(Request).findOne({where: {message: { id: messageId}}});
+        const request = await AppDataSource.getRepository(Request).findOne({where: {message: { id: messageId } }});
         if (!request) {
             return [];
         }
@@ -144,7 +144,7 @@ export class MessagesController {
 
         socket.on('sendMessage', async (data: messageDto) => {
             try {
-                if (!data.message || !data.receiverId || !data.senderId || !data.type) {
+                if (!data.receiverId || !data.senderId || !data.type) {
                     throw new Error('missing some data!');
                 }
                 const {newMessage, conversation}  = await this.storeMessage(data);
