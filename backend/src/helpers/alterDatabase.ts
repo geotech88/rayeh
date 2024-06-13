@@ -44,7 +44,7 @@ export async function alterColumns(): Promise<void> {
     // await queryRunner.query(`ALTER TABLE "conversation_trips_trips" ADD CONSTRAINT "FK_03829a54b6405b6713ad05e6565" FOREIGN KEY ("tripsId") REFERENCES "Trips"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
       // await queryRunner.query(`ALTER TABLE "Message" ADD "userId" integer`);
       // await queryRunner.query(`ALTER TABLE "Message" ADD CONSTRAINT "FK_84d835397d0526ad7d04ef354e1" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
-    await queryRunner.query(`ALTER TABLE "Request" ADD "service" character varying NOT NULL`);
+    // await queryRunner.query(`ALTER TABLE "Request" ADD "service" character varying NOT NULL`);
     await queryRunner.query(`ALTER TABLE "Trips" ADD "service" character varying`);
     // if (!(await checkColumnExistence('Tracker', 'place'))) {
     //   await queryRunner.query(`ALTER TABLE "Tracker" ADD COLUMN "place" VARCHAR(255);`);
