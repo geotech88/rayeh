@@ -13,6 +13,8 @@ tripsRouter.get('/api/trips/getTripsbysearch', TripsController.getTripsBySearch)
 
 tripsRouter.get('/api/trips/getTripsByUserId/:id', TripsController.getTripsByUserId);
 
+tripsRouter.patch('/api/trips/updateTypeService/:id', TripsController.updateTypeService)
+
 tripsRouter.post('/api/trips/updatetrip/:id', TripsController.updateTrips);
 
 tripsRouter.delete('/api/trips/deletetrip/:id', TripsController.deleteTrips);

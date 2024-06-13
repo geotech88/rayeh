@@ -17,6 +17,9 @@ export class Request {
     to: string;
 
     @Column({nullable: false})
+    service: string;
+
+    @Column({nullable: false})
     price: string;
 
     @Column({nullable: false})
