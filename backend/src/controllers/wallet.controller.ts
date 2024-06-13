@@ -7,10 +7,10 @@ import { conversionCurrency } from "../helpers/helpers";
 import { Operations } from "../entity/Operations.entity";
 require('dotenv').config();
 
-const HYPERPAY_URL = process.env.HYPERPAY_URL;
-const HYPERPAY_ENTITY_VISA_MASTERCARD_ID = process.env.HYPERPAY_ENTITY_VISA_MASTERCARD;
-const HYPERPAY_ENTITY_MADA_ID = process.env.HYPERPAY_ENTITY_MADA;
-const HYPERPAY_AUTH_TOKEN = process.env.HYERPAY_AUTH_TOKEN;
+const HYPERPAY_URL = 'https://eu-test.oppwa.com';
+const HYPERPAY_ENTITY_VISA_MASTERCARD_ID = '8ac7a4c88fc6607d018fc7e7341700d7';
+const HYPERPAY_ENTITY_MADA_ID = '8ac7a4c88fc6607d018fc7e7aea700db';
+const HYPERPAY_AUTH_TOKEN = 'OGFjN2E0Yzg4ZmM2NjA3ZDAxOGZjN2U2YjNhMjAwZDN8dGtkMm14bUpwUmhtM21hUw==';
 
 export class WalletController {
     static async createWallet(userInfo: User) {
