@@ -7,9 +7,9 @@ import { Message } from "../entity/Messages.entity";
 export class RequestController {
     static async createRequest(req: ExtendedRequest, res: Response) {
         try {
-            const { from, to, price, cost, date, messageId } = req.body;
+            const { from, to, price, cost, date, service, messageId } = req.body;
             console.log('the informations:',from, to, price, cost, messageId )
-            if (!from || !to || !price || !cost || !date || !messageId) {
+            if (!from || !to || !price || !cost || !date || !service || !messageId) {
                 return res.status(400).json({message: "Missing parameters in the body"});
             }
             const RequestRepository = AppDataSource.getRepository(Request);
@@ -23,6 +23,7 @@ export class RequestController {
             request.to = to;
             request.price = String(price);
             request.cost = String(cost);
+            request.service = service;
             request.message = message;
             request.date = new Date(date);
             await RequestRepository.save(request);

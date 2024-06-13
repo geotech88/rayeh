@@ -26,6 +26,9 @@ export class Trips {
     @Column({nullable: false})
     description: string;
 
+    @Column({nullable: true})
+    service: string;
+
     @OneToOne(() => Tracker, tracker => tracker.trip)
     tracker: Tracker;
 

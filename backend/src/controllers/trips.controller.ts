@@ -105,6 +105,26 @@ export class TripsController {
         }
     }
 
+    static async updateTypeService(req: ExtendedRequest, res: Response) {
+        try {
+            const { service } = req.body;
+            const TripsRepository = AppDataSource.getRepository(Trips);
+            const trip = await TripsRepository.findOne({where: { id: Number(req.params.id)}});
+            if (!trip ) {
+                return res.status(404).json({message: "Trip not found!"});
+            }
+            if (!service) {
+                return res.status(400).json({message: "Missing parameters!"});
+            }
+            trip.service = service;
+            await TripsRepository.save(trip);
+            const result = await TripsRepository.findOne({where: { id: Number(req.params.id)}});
+            return res.status(200).json({message: "Trip updated successfully!", data: result});
+        } catch (error: any) {
+            return res.status(500).json({error: {message: error.message}});
+        }
+    }
+
     //add reviews to each trip, transaction, and invoice
     static async getTripsByUserId(req: ExtendedRequest, res: Response) {
         try {
