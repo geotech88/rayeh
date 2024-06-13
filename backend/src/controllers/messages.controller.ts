@@ -148,6 +148,9 @@ export class MessagesController {
                     throw new Error('missing some data!');
                 }
                 const {newMessage, conversation}  = await this.storeMessage(data);
+                if (newMessage.type.toLowerCase() === 'request') {
+                    socket.emit('messageInfo', newMessage);
+                }
                 let receiverSocket = this.listSocket.get(String(conversation.receiverUser.auth0UserId));
                 if (receiverSocket === socket) {
                     receiverSocket = this.listSocket.get(String(conversation.senderUser.auth0UserId));
