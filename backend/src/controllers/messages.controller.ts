@@ -83,6 +83,7 @@ export class MessagesController {
                 getConversation.trips = [];
                 getConversation.messages = [];
             }
+            getConversation.lastTripId = message.tripId;
             const tripExists = getConversation.trips.some(trip => trip.id === Trip.id);
             if (!tripExists) {
                 getConversation.trips.push(Trip);
@@ -128,8 +129,7 @@ export class MessagesController {
                 });
                 conversation.messages = latestMessage ? [latestMessage] : [];
                 const lastTrip = await AppDataSource.getRepository(Trips).findOne({
-                    where: { conversation: { id: conversation.id } },
-                    order: { createdAt: 'DESC' }
+                    where: { id: conversation.lastTripId }
                 });
                 conversation.trips = lastTrip ? [lastTrip] : [];
             }
