@@ -4,6 +4,7 @@ export interface messageDto {
     message: string;
     type: string;
     tripId: number;
+    requestId?: number;
 }
 
 export interface messageUsersDto {
