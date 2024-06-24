@@ -16,7 +16,7 @@ export class RequestController {
             }
             const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.userId}});
             const RequestRepository = AppDataSource.getRepository(Request);
-            const conversation = await AppDataSource.getRepository(Conversation).findOne({where: {id: conversationId}});
+            const conversation = await AppDataSource.getRepository(Conversation).findOne({relations: {messages: true},where: {id: conversationId}});
             if (!conversation) {
                 return res.status(404).json({message: "Conversation not found"});
             }
