@@ -33,8 +33,8 @@ export class TrackersController {
             tracker.timing = timing;
             tracker.trip = trip;
             await TrackerRepository.save(tracker);
-            await TransactionsController.createTransaction(req, tracker, invoice as Invoice);
-            return res.status(201).json({message:'Tracker updated successfully', data: tracker});
+            const transaction = await TransactionsController.createTransaction(req, tracker, invoice as Invoice);
+            return res.status(201).json({message:'Tracker updated successfully', data: {tracker, transaction}});
         } catch (error:any){
             return res.status(500).json({error: error.message});
         }
