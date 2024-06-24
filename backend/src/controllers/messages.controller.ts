@@ -88,13 +88,21 @@ export class MessagesController {
             if (!tripExists) {
                 getConversation.trips.push(Trip);
             }
-            const newMessage = new Message();
-            newMessage.message = message.message;
-            newMessage.type = message.type;
-            newMessage.user = senderUser;
-            await AppDataSource.getRepository(Message).save(newMessage);
-            getConversation.messages.push(newMessage);
-            await AppDataSource.getRepository(Conversation).save(getConversation);
+            if (message.type.toLowerCase() !== 'request') {
+                console.log('should be here, no request type');
+                const newMessage = new Message();
+                newMessage.message = message.message;
+                newMessage.type = message.type;
+                newMessage.user = senderUser;
+                await AppDataSource.getRepository(Message).save(newMessage);
+                getConversation.messages.push(newMessage);
+                await AppDataSource.getRepository(Conversation).save(getConversation);
+                return {newMessage: newMessage, conversation: getConversation};
+            }
+            const newMessage = await AppDataSource.getRepository(Message).findOne({relations: {request: true}, where: {request: {id: message.requestId}}});
+            if (!newMessage) {
+                throw new Error('Request not available');
+            }
             return {newMessage: newMessage, conversation: getConversation};
         } catch (error: any) {
             throw new Error(`Failed to store message in database: ${error.message}`);
@@ -148,21 +156,13 @@ export class MessagesController {
                     throw new Error('missing some data!');
                 }
                 const {newMessage, conversation}  = await this.storeMessage(data);
-                if (newMessage.type.toLowerCase() === 'request') {
-                    socket.emit('messageInfo', newMessage);
-                }
                 let receiverSocket = this.listSocket.get(String(conversation.receiverUser.auth0UserId));
                 if (receiverSocket === socket) {
                     receiverSocket = this.listSocket.get(String(conversation.senderUser.auth0UserId));
                 }
                 let result = {};
                 if (receiverSocket) {
-                    if (newMessage.type.toLowerCase() === 'request') { //check if the type if request, and message empty, return the request object
-                        const request = await this.retrieveRequest(Number(newMessage.message));
-                        result = {newMessage, user: conversation.senderUser, request};
-                    } else {
-                        result = {newMessage, user: conversation.senderUser};
-                    }
+                    result = {newMessage, user: conversation.senderUser, conversation_id: conversation.id};
                     receiverSocket.emit('newMessage', result);
                 }
             } catch (error: any) {
@@ -185,7 +185,7 @@ export class MessagesController {
                     }
                     return message;
                 }));
-                socket?.emit('retrieveMessages', messagesWithRequests);
+                socket?.emit('retrieveMessages', {messagesWithRequests, conversation_id: conversation.id});
             } catch (error: any) {
                 socket.emit('error', error.message);
             }

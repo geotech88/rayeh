@@ -6,6 +6,9 @@ import { Not } from "typeorm";
 import { WalletController } from "./wallet.controller";
 import { Role } from "../entity/Roles.entity";
 import { GenralCDNController } from "./generalCDN.controller";
+import { Wallet } from "../entity/Wallet.entity";
+import { Reviews } from "../entity/Reviews.entity";
+import { calculateReviewsAverage } from "../helpers/helpers";
 
 export class UserController {
 
@@ -23,7 +26,12 @@ export class UserController {
         try {
             const UserRepository = AppDataSource.getRepository(User);
             const user = await UserRepository.findOne({relations: {role: true}, where: {auth0UserId: req.user?.userId}});
-            return res.status(200).json({ message:"User fetched successfully", data: user});
+            const userWallet = await AppDataSource.getRepository(Wallet).findOne({where: {user: {auth0UserId: user?.auth0UserId}}});
+            const reviews = await AppDataSource.getRepository(Reviews).find({
+                where: { user: {auth0UserId: user?.auth0UserId} }
+            });
+            const averageRating = calculateReviewsAverage(reviews);
+            return res.status(200).json({ message:"User fetched successfully", data: {user, wallet: userWallet, average_rating: averageRating}});
         } catch (error: any) {
             return res.status(500).json({error: error.message});
         }

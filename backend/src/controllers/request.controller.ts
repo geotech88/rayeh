@@ -3,21 +3,36 @@ import { ExtendedRequest } from "../middlewares/Authentication";
 import { AppDataSource } from "../config/ormconfig";
 import { Request } from "../entity/Request.entity";
 import { Message } from "../entity/Messages.entity";
+import { Conversation } from "../entity/Conversation.entity";
+import { User } from "../entity/Users.entity";
 
 export class RequestController {
     static async createRequest(req: ExtendedRequest, res: Response) {
         try {
-            const { from, to, price, cost, date, service, messageId } = req.body;
-            console.log('the informations:',from, to, price, cost, messageId )
-            if (!from || !to || !price || !cost || !date || !service || !messageId) {
+            const { from, to, price, cost, date, service, conversationId } = req.body;
+            console.log('the informations:',from, to, price, cost, conversationId )
+            if (!from || !to || !price || !cost || !date || !service || !conversationId) {
                 return res.status(400).json({message: "Missing parameters in the body"});
             }
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.userId}});
             const RequestRepository = AppDataSource.getRepository(Request);
-            const message = await AppDataSource.getRepository(Message).findOne({where: {id: messageId}});
-            if (!message) {
-                return res.status(404).json({message: "Message not found"});
+            const conversation = await AppDataSource.getRepository(Conversation).findOne({where: {id: conversationId}});
+            if (!conversation) {
+                return res.status(404).json({message: "Conversation not found"});
             }
-            console.log('the message:', message)
+            if (!user) {
+                return res.status(404).json({message: "User not found"});
+            }
+            const message = new Message();
+            message.message = '';
+            message.type = 'request';
+            message.user = user;
+            await AppDataSource.getRepository(Message).save(message);
+            if (!conversation.messages) {
+                conversation.messages = [];
+            }
+            conversation.messages.push(message);
+            await AppDataSource.getRepository(Conversation).save(conversation);
             const request = new Request();
             request.from = from;
             request.to = to;
