@@ -60,13 +60,19 @@ export class TrackersController {
 
     static async getTrackersByUserId(req: ExtendedRequest, res: Response) {
         try {
-            const { userId } = req.params
-            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: userId}});
+            const { id } = req.params
+            const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: id}});
             if (!user) {
                 return res.status(404).json({message: "User not found"});
             }
-            const trackers = await AppDataSource.getRepository(Tracker).find({relations: {receiverUser: true, senderUser: true, trip: true},
-                                                                            where: [{receiverUser: {id: user.id}}, {senderUser: {id: user.id}}]});
+            const trackers = await AppDataSource.getRepository(Tracker).find({
+                relations: { receiverUser: true, senderUser: true, trip: true },
+                where: [
+                    { receiverUser: { auth0UserId: id } },
+                    { senderUser: { auth0UserId: id } }
+                ]
+            });
+            
             if (!trackers.length) {
                 return res.status(404).json({message: "No trackers were found"});
             }
