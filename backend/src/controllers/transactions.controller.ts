@@ -58,6 +58,29 @@ export class TransactionsController {
         }
     }
 
+    static async getTransactionByTrackerId(req: ExtendedRequest, res: Response) {
+        try {
+            const { id } = req.params;
+            const tracker = await AppDataSource.getRepository(Tracker).findOne({relations:{trip: true}, where: {id: Number(id)}});
+            if (!tracker) {
+                return res.status(400).json({message: "Tracker not available!"});
+            }
+            console.log('the tracker:', tracker)
+            const transaction = await AppDataSource.getRepository(Transaction).findOne(
+                {
+                    relations: {sender: true, receiver: true, invoice: true, trip: true}, 
+                    where: {trip: {id: tracker.trip.id}}
+                }
+            );
+            if (!transaction) {
+                return res.status(404).json({message : "Transaction not available!"})
+            }
+            return res.status(200).json({message: 'Transaction retrieve successfully!', data: transaction});
+        } catch (error: any) {
+            return res.status(500).json({message: error.message});
+        }
+    }
+
     static async updateTransactionInvoice(req: ExtendedRequest, res: Response) {
         try {
             const transactionRepository = AppDataSource.getRepository(Transaction);

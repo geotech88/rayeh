@@ -7,6 +7,8 @@ transactionRouter.get('/api/transaction/getalltransactions', TransactionsControl
 
 transactionRouter.get('/api/transaction/gettransaction/:id', TransactionsController.getTransactionById);
 
+transactionRouter.get('/api/transaction/gettransactionByTracker/:id', TransactionsController.getTransactionByTrackerId);
+
 transactionRouter.patch('/api/transaction/updateinvoice/:id', TransactionsController.updateTransactionInvoice);
 
 transactionRouter.patch('/api/transaction/updatestatus/:id', TransactionsController.updateTransactionStatus);
