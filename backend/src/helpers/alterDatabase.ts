@@ -46,7 +46,18 @@ export async function alterColumns(): Promise<void> {
       // await queryRunner.query(`ALTER TABLE "Message" ADD CONSTRAINT "FK_84d835397d0526ad7d04ef354e1" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
     // await queryRunner.query(`ALTER TABLE "Request" ADD "service" character varying NOT NULL`);
     // await queryRunner.query(`ALTER TABLE "Trips" ADD "service" character varying`);
-    await queryRunner.query(`ALTER TABLE "Conversation" ADD "lastTripId" integer`);
+    // await queryRunner.query(`ALTER TABLE "Conversation" ADD "lastTripId" integer`);
+    await queryRunner.query(`ALTER TABLE "Transaction" DROP CONSTRAINT "PK_21eda4daffd2c60f76b81a270e9"`);
+
+        // Drop the existing id column
+    await queryRunner.query(`ALTER TABLE "Transaction" DROP COLUMN "id"`);
+
+        // Add the new auto-incrementing id column
+    await queryRunner.query(`ALTER TABLE "Transaction" ADD "id" SERIAL NOT NULL`);
+
+        // Re-add the primary key constraint to the new id column
+    await queryRunner.query(`ALTER TABLE "Transaction" ADD CONSTRAINT "PK_21eda4daffd2c60f76b81a270e9" PRIMARY KEY ("id")`);
+    
     // if (!(await checkColumnExistence('Tracker', 'place'))) {
     //   await queryRunner.query(`ALTER TABLE "Tracker" ADD COLUMN "place" VARCHAR(255);`);
     //   console.log(`Added column: place in table: Tracker`);

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,5 +8,19 @@
 </head>
 <body>
     <form action="http://localhost:3000/api/wallet/payment/visaMasterCard/callback" class="paymentWidgets" data-brands="VISA MASTER MADA"></form>
+</body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Photo</title>
+</head>
+<body>
+    <form action="http://localhost:3000/api/users/photo" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" />
+        <button type="submit">Upload</button>
+    </form>
 </body>
 </html>
