@@ -24,15 +24,22 @@ export class GenralCDNController {
 
     public async uploadFile(req: ExtendedRequest): Promise<any> {
         try {
-            const file_name = req.body?.file_name;
             const file = req.file;
-            if (!file_name || !file) {
+            if ( !file) {
                 return {message: 'invalid request parameters'};
             }
+            const file_name = file.originalname;
             const ext = file_name.split('.').pop();
             const filename = file_name.split('.').slice(0, -1).join();
             const bucketName = this.bucketPublic;
             const key = `${filename + uuidv4() + '.' + ext}`;
+            console.log('the file name:', {
+                Bucket: bucketName,
+                Key: key,
+                Body: file?.buffer,
+                ACL: 'public-read',
+                ContentType: file?.mimetype
+            });
 
             const { Location } = await this.s3.upload({
                 Bucket: bucketName,

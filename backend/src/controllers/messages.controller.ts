@@ -56,6 +56,15 @@ export class MessagesController {
         return request;
     }
 
+    async retrieveLastTrip(tripId: number) {
+        try {
+            const trip = await AppDataSource.getRepository(Trips).findOne({where: {id: tripId}});
+            return trip;
+        } catch(error:any) {
+            throw new Error("Something wrong in retrieving the last trip!");
+        }
+    }
+
     async storeMessage(message: messageDto): Promise<any> {
         try {
             if (message.senderId === message.receiverId) {
@@ -152,7 +161,7 @@ export class MessagesController {
 
         socket.on('sendMessage', async (data: messageDto) => {
             try {
-                if (!data.receiverId || !data.senderId || !data.type) {
+                if (!data.receiverId || !data.senderId || !data.type || !data.tripId) {
                     throw new Error('missing some data!');
                 }
                 const {newMessage, conversation}  = await this.storeMessage(data);
@@ -185,7 +194,8 @@ export class MessagesController {
                     }
                     return message;
                 }));
-                socket?.emit('retrieveMessages', {messagesWithRequests, conversation_id: conversation.id});
+                const lastTrip = await this.retrieveLastTrip(conversation.lastTripId);
+                socket?.emit('retrieveMessages', {messagesWithRequests, conversation_id: conversation.id, lastTrip: lastTrip});
             } catch (error: any) {
                 socket.emit('error', error.message);
             }
