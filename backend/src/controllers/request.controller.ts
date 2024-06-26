@@ -11,7 +11,7 @@ export class RequestController {
         try {
             const { from, to, price, cost, date, service, conversationId } = req.body;
             console.log('the informations:',from, to, price, cost, conversationId )
-            if (!from || !to || !price || !cost || !date || !service || !conversationId) {
+            if (!from || !to || String(price) === 'undefined' || String(cost) === 'undefined' || !date || !service || !conversationId) {
                 return res.status(400).json({message: "Missing parameters in the body"});
             }
             const user = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: req.user?.userId}});
