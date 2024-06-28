@@ -15,10 +15,13 @@ export class TrackersController {
             const senderUser = await AppDataSource.getRepository(User).findOne({where: {auth0UserId: senderId}});
             const trip = await AppDataSource.getRepository(Trips).findOne({where: {id: tripId}});
             let invoice;
+            if (!receiverId || !senderId || !name || !date || !timing || !tripId) {
+                return res.status(400).json({message: "Missing some parameters!"});
+            }
             if (invoiceId) {
                 invoice = await AppDataSource.getRepository(Invoice).findOne({where: {id: invoiceId}})
             }
-            if (!receiverUser || !senderUser) {
+            if (!receiverUser || !senderUser || receiverId !== receiverUser.auth0UserId || senderId !== senderUser.auth0UserId) {
                 return res.status(404).json({message: "User not found"});
             }
             if (!trip) {
