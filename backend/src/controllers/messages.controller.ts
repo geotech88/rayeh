@@ -98,7 +98,6 @@ export class MessagesController {
                 getConversation.trips.push(Trip);
             }
             if (message.type.toLowerCase() !== 'request') {
-                console.log('should be here, no request type');
                 const newMessage = new Message();
                 newMessage.message = message.message;
                 newMessage.type = message.type;
@@ -127,6 +126,44 @@ export class MessagesController {
             return getConversation as Conversation;
         } catch (error: any) {
             throw new Error(`Failed to retrieve messages from database: ${error.message}`);
+        }
+    }
+
+    async removeMessages(messageUsers: messageUsersDto): Promise<void> {
+        try {
+            const UserRepository = AppDataSource.getRepository(User);
+            const requestRepository = AppDataSource.getRepository(Request);
+            const messageRepository = AppDataSource.getRepository(Message);
+            const user1 = await UserRepository.findOne({where: {auth0UserId: messageUsers.user1Id}});
+            const user2 = await UserRepository.findOne({where: {auth0UserId: messageUsers.user2Id}});
+            if (user1?.auth0UserId !== messageUsers.user1Id || user2?.auth0UserId !== messageUsers.user2Id) {
+                throw new Error('user not available!');
+            }
+            const conversation = await AppDataSource.getRepository(Conversation).findOne({
+                where: [
+                    {senderUser: {auth0UserId: messageUsers.user1Id}, receiverUser: {auth0UserId: messageUsers.user2Id}},
+                    {senderUser: {auth0UserId: messageUsers.user2Id}, receiverUser: {auth0UserId: messageUsers.user1Id}}
+                ],
+                relations: {messages: true}
+            })
+            if (!conversation) {
+                throw new Error('conversation not available');
+            }
+            for (const message of conversation.messages) {
+                // If message type is 'request', delete related requests
+                if (message.type === 'request') {
+                    await requestRepository.createQueryBuilder()
+                        .delete()
+                        .where("messageId = :messageId", { messageId: message.id })
+                        .execute();
+                }
+            }
+            await messageRepository.createQueryBuilder()
+                .delete()
+                .where("conversationId = :conversationId", { conversationId: conversation.id })
+                .execute();
+        } catch (error: any) {
+            throw new Error(`Failed to remove message in database: ${error.message}`);
         }
     }
 
@@ -185,7 +222,6 @@ export class MessagesController {
                     throw new Error('missing some data!');
                 }
                 const conversation = await this.getAllMessages(data);
-                console.log('the conversation:', conversation);
                 const messagesWithRequests = await Promise.all(conversation.messages.map(async (message) => {
                     if (message.type.toLowerCase() === 'request') {
                         const messageId = Number(message.id);
@@ -200,6 +236,18 @@ export class MessagesController {
                 socket.emit('error', error.message);
             }
         });
+
+        socket.on('removeMessages', async (data: messageUsersDto) => {
+            try {
+                if (!data.user1Id || !data.user2Id) {
+                    throw new Error('missing some data!');
+                }
+                await this.removeMessages(data);
+                socket?.emit('removeMessages', {message: "The message deleted successufully!"});
+            } catch (error: any) {
+                socket.emit('error', error.message);
+            }
+        })
 
         socket.on('discussions', async (data: any) => {
             try {
