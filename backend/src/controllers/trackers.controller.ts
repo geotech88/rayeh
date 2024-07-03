@@ -6,6 +6,7 @@ import { Tracker } from "../entity/Tracker.entity";
 import { Trips } from "../entity/Trips.entity";
 import { TransactionsController } from "./transactions.controller";
 import { Invoice } from "../entity/Invoices.entity";
+import { TrackerUpdate } from "../entity/TrackerUpdate.entity";
 
 export class TrackersController {
     static async createTracker(req: ExtendedRequest, res: Response) {
@@ -51,7 +52,15 @@ export class TrackersController {
             if (!User1 || !User2) {
                 return res.status(400).json({message: "User not found!"});
             }
-            const trackers = await AppDataSource.getRepository(Tracker).find({where: {receiverUser:{id: User1.id}, senderUser: {id: User2.id}}});
+            const trackers = await AppDataSource.getRepository(Tracker).find(
+                {
+                    relations: { receiverUser: true, senderUser: true, trip: true, updates: true},
+                    where: [
+                        { receiverUser:{id: User1.id}, senderUser: {id: User2.id}},
+                        { receiverUser:{id: User2.id}, senderUser: {id: User1.id}}
+                    ]
+                }
+            );
             if (!trackers.length) {
                 return res.status(200).json({message: "No trackers found", data: []});
             }
@@ -101,16 +110,30 @@ export class TrackersController {
     static async updateTracker(req: ExtendedRequest, res: Response) {
         try {
             const { id } = req.params;
-            const {name, date, timing } = req.body;
-            let tracker = await AppDataSource.getRepository(Tracker).findOne({where: {id: Number(id)}});
+            const { name, date, timing, place } = req.body;
+            if (!name || !date || !timing || !place) {
+                return res.status(400).json({message: "Missing some parameters!"});
+            }
+            const trackerRepository = AppDataSource.getRepository(Tracker);
+            const updateRepository = AppDataSource.getRepository(TrackerUpdate);
+            let tracker = await trackerRepository.findOne({where: {id: Number(id)}});
             if (!tracker) {
                 return res.status(404).json({message: "Tracker not found"});
             }
+            const newUpdate = new TrackerUpdate();
+            newUpdate.tracker = tracker;
+            newUpdate.name = name;
+            newUpdate.timing = timing;
+            newUpdate.date = date;
+            newUpdate.place = place;
+
+            await updateRepository.save(newUpdate);
             tracker.name = name;
-            tracker.date = date;
             tracker.timing = timing;
-            await AppDataSource.getRepository(Tracker).save(tracker);
-            tracker = await AppDataSource.getRepository(Tracker).findOne({where: {id: Number(id)}});
+            tracker.date = date;
+            tracker.place = place;
+            await trackerRepository.save(tracker);
+            tracker = await trackerRepository.findOne({where: {id: Number(id)}, relations: {updates: true, senderUser: true, receiverUser: true}});
             return res.status(200).json({message: 'Tracker updated successfully', data: tracker});
         } catch (error:any) {
             return res.status(500).json({error: error.message});
