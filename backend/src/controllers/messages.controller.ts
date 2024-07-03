@@ -107,7 +107,7 @@ export class MessagesController {
                 await AppDataSource.getRepository(Conversation).save(getConversation);
                 return {newMessage: newMessage, conversation: getConversation};
             }
-            const newMessage = await AppDataSource.getRepository(Message).findOne({relations: {request: true}, where: {request: {id: message.requestId}}});
+            const newMessage = await AppDataSource.getRepository(Message).findOne({relations: { request: true, user: true }, where: {request: {id: message.requestId}}});
             if (!newMessage) {
                 throw new Error('Request not available');
             }
@@ -208,7 +208,7 @@ export class MessagesController {
                 }
                 let result = {};
                 if (receiverSocket) {
-                    result = {newMessage, user: conversation.senderUser, conversation_id: conversation.id};
+                    result = {newMessage, conversation_id: conversation.id};
                     receiverSocket.emit('newMessage', result);
                 }
             } catch (error: any) {

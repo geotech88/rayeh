@@ -1,8 +1,9 @@
 // import 'reflect-metadata';
 require("reflect-metadata");
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./Users.entity";
 import { Trips } from './Trips.entity';
+import { TrackerUpdate } from './TrackerUpdate.entity';
 
 @Entity({ name: 'Tracker'})
 export class Tracker {
@@ -26,6 +27,9 @@ export class Tracker {
 
     @Column({nullable: true})
     place: string;
+
+    @OneToMany(() => TrackerUpdate, update => update.tracker)
+    updates: TrackerUpdate[];
 
     @OneToOne(() => Trips, trip => trip.tracker)
     @JoinColumn()
