@@ -1,0 +1,29 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  // "--no-sound-null-safety",
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter",
+      "request": "launch",
+      "flutterMode": "debug",
+      "type": "dart",
+      "args": [
+        "--dart-define",
+        // this domain is related to the account, so you can have the same domain and multi client ids.
+        "AUTH0_DOMAIN=dev-32micva8iqjojfue.us.auth0.com",
+        // mine
+        // "AUTH0_DOMAIN=dev-uq8xd1zcgo2vaam8.us.auth0.com",
+        "--dart-define",
+        // "AUTH0_CLIENT_ID=WY5LVD80iVJ445Hb4CcZY5OqfzZ2zrJW",
+
+        // this is the professional one
+        "AUTH0_CLIENT_ID=N8Q88DwQE3PJM0BgGKJmiLoyjoc3A4OW",
+        // mine
+        // "AUTH0_CLIENT_ID=MOa0rKJ8mlEET2lJZdThKTXWNmQglg9i",
+      ]
+    },
+  ]
+}

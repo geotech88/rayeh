@@ -1,0 +1,118 @@
+name: rayeh_app
+description: "A new Flutter project."
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.3 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^1.0.6
+  # package for state management
+  get: ^4.6.6
+  # for the responsive design on phones
+  flutter_screenutil: ^5.9.0
+  # for text fonts
+  google_fonts: ^6.2.1
+  # for svg icons
+  flutter_svg: ^2.0.10+1
+  # for multi languages in the app
+  flutter_localizations:
+    sdk: flutter
+  # to make the track page design 
+  # im_stepper: ^1.0.1+1  # i think i will not use this
+  timeline_tile: ^2.0.0
+  # this to generate the qr code
+  qr_flutter: ^4.0.0
+  # this to scan the qr code
+  flutter_barcode_scanner: ^2.0.0
+  # to create the design of a credit card
+  u_credit_card: ^1.3.0
+  # to pick the country and it's cities
+  # csc_picker: ^0.2.7   i didn't use it.
+  # to make a custom dropdown menu
+  dropdown_button2: ^2.3.9
+  # to make a custom alertDialog
+  quickalert: ^1.1.0
+  # to authenticate with auth0
+  flutter_appauth: ^6.0.6
+  # to save the data in local storage encrypted
+  flutter_secure_storage: ^9.2.1
+  # to make http requests
+  http: ^1.2.1
+  # to annotate the objects
+  # json_annotation: ^4.9.0
+  # to create a custom loading
+  shimmer: ^3.0.0
+  # to pick the image from the gallery
+  image_picker: ^1.1.1
+  # to cach and show network images
+  cached_network_image: ^3.3.1  
+  # to make the chat with socket io
+  socket_io_client: ^2.0.3+1
+  # to check if the device connected to a wifi or data
+  connectivity_plus: ^6.0.3
+  # to check the internet connection
+  internet_connection_checker: ^1.0.0+1
+  # to add a splash screen for the app
+  flutter_native_splash: ^2.4.0
+  # to handle the response either a success or failure
+  fpdart: ^1.1.0
+  # for the rating stars
+  flutter_rating_bar: ^4.0.1
+  # to add the payment
+  hyperpay_plugin: ^2.0.8
+
+
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # to return a dart object from json 
+  json_serializable: ^6.8.0
+  build_runner: ^2.4.7
+
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  # To add assets to your application, add an assets section, like this:
+  assets:
+    - assets/images/
+    - assets/icons/
+    - assets/json/
+    - assets/fonts/
+  #   - images/a_dot_ham.jpeg
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/assets-and-images/#resolution-aware
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/assets-and-images/#from-packages
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/custom-fonts/#from-packages
+flutter_intl:
+  enabled: true

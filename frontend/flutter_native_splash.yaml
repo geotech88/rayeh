@@ -1,0 +1,24 @@
+flutter_native_splash:
+
+  color: "#FDA867"
+  # background_image: "assets/images/splash_img.png"
+
+  # image: assets/images/rayeh_logo.png
+  image: assets/images/rayeh_logo_1152.png
+  # image: assets/images/rayeh_logo_xxsml.png
+
+  # branding: assets/dart.png
+
+  android_12:
+
+    color: "#FDA867"
+    # background_image: "assets/images/splash_img.png"
+
+    # image: assets/images/rayeh_logo.png
+    image: assets/images/rayeh_logo_1152.png
+    # image: assets/images/rayeh_logo_xxsml.png
+
+
+  #android: false
+  #ios: false
+  web: false
