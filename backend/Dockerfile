@@ -1,4 +1,4 @@
-# Step 1: Set the base image. Here, we're using the official Node.js 16 Alpine image as it's lightweight.
+# Step 1: Set the base image. Here, we're using the official Node.js 16 Alpine image as it's lightweight. 
 FROM node:18-alpine
 
 # Step 2: Set the working directory inside the container
